@@ -63,11 +63,11 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cu
 #main{flex:1;min-height:0;position:relative}
 .tab{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 14px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:none}
 .tab.on{display:block}
-#tabs{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(8,17,20,.96);border-top:1px solid var(--line)}
-#tabs button{height:56px;border-radius:14px;background:var(--panel);font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative;color:var(--dim)}
+#tabs{flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(8,17,20,.96);border-top:1px solid var(--line)}
+#tabs button{height:56px;min-width:0;border-radius:14px;background:var(--panel);font-weight:800;font-size:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative;color:var(--dim)}
 #tabs button b{font-size:21px;line-height:1}
 #tabs button.on{background:var(--panel2);color:var(--teal);box-shadow:inset 0 -3px 0 var(--teal)}
-#tabs .dot{position:absolute;top:6px;right:22%;width:12px;height:12px;border-radius:6px;background:var(--red);border:2px solid #081114}
+#tabs .dot{position:absolute;top:6px;right:16%;width:12px;height:12px;border-radius:6px;background:var(--red);border:2px solid #081114}
 
 /* ---------- work ---------- */
 #fxrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
@@ -142,6 +142,15 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cu
 .item.dis{border-color:var(--red)}
 .buy.bump{animation:bump .3s}@keyframes bump{50%{transform:scale(1.12)}}
 
+/* ---------- roster ---------- */
+.item p.tr{color:var(--amber);font-weight:800}
+.item p.st{color:var(--teal);font-size:13px;font-weight:700}
+.item.empty{border-style:dashed;opacity:.8}
+.item.empty .ic,.item.lock .ic{filter:grayscale(1)}
+.item em.mood{color:var(--amber)}
+.buy.fire{background:#3a1018;color:#ff9aa4}
+.buy.arm{background:var(--red);color:#2b0509}
+.tier{font-size:15px;font-weight:900;color:var(--dim);margin:12px 2px 6px;letter-spacing:.3px}
 /* ---------- stats ---------- */
 .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px}
 .kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #1a333c;font-size:16px}
@@ -231,8 +240,11 @@ body.blackout #main{filter:brightness(.55)}
         <div id="log"></div>
       </section>
       <section id="tab-upg" class="tab"><div id="shop"></div></section>
+      <section id="tab-roster" class="tab"><div id="roster"></div></section>
       <section id="tab-stats" class="tab">
         <div class="card" id="statshift"></div>
+        <div class="sec" style="margin-top:0">Admin Approval <small id="apprbal"></small></div>
+        <div class="card" id="statappr"></div>
         <div class="sec">Seniority Perks <small id="senbal"></small></div>
         <div class="note">Permanent. Earned by clocking out at 7 AM. Management calls this "tenure". It is not pay.</div>
         <div id="perks"></div>
@@ -249,6 +261,7 @@ body.blackout #main{filter:brightness(.55)}
     <nav id="tabs">
       <button data-tab="work" class="on"><b>💊</b>Work</button>
       <button data-tab="upg"><b>🛒</b>Upgrades<span class="dot hidden" id="upgdot"></span></button>
+      <button data-tab="roster"><b>🧑‍⚕️</b>Roster<span class="dot hidden" id="rosdot"></span></button>
       <button data-tab="stats"><b>📋</b>Stats</button>
     </nav>
   </div>
@@ -257,7 +270,7 @@ body.blackout #main{filter:brightness(.55)}
   <div id="handoff" class="ov hidden"><div class="box" id="handbox"></div></div>
   <div id="confirm" class="ov hidden"><div class="box">
     <h2>Reset everything?</h2>
-    <div class="sub">This deletes your level, upgrades and Seniority. Even HR can't undo this.</div>
+    <div class="sub">This deletes your level, upgrades, roster and Seniority. Even HR can't undo this.</div>
     <button class="bigbtn danger" id="confirmyes">Yes, reset</button>
     <button class="bigbtn ghost" id="confirmno">Cancel</button>
   </div></div>
@@ -408,7 +421,6 @@ const GEAR=[
  {id:'head',icon:'🎧',name:'Phone Headset',desc:'Auto-answers 0.12 calls/sec. Hands-free despair.',base:560,gr:1.6,max:8,req:3},
  {id:'coffee',icon:'☕',name:'Coffee IV Drip',desc:'Unlocks a button: 2x passive, +50% pay for a while.',base:720,gr:1.8,max:5,req:4},
  {id:'tall',icon:'🔠',name:'Tall-Man Lettering',desc:'metFORMIN vs metOPROLOL. Scribbles get easier.',base:840,gr:2.6,max:2,req:4},
- {id:'tech',icon:'🧑‍⚕️',name:'Tech Friend',desc:'Hire a tech: 0.1 orders + 0.08 calls/sec. Stalls when sanity hits 0.',base:1040,gr:1.75,max:6,req:5},
  {id:'binder',icon:'📎',name:'Compliance Binder',desc:'Audits are kinder: more error/backlog slack.',base:960,gr:2.1,max:3,req:5}
 ];
 const SKILLS=[
@@ -423,8 +435,39 @@ const PERKS=[
  {id:'inst',icon:'🎓',name:'Institutional Knowledge',desc:'+10% XP, permanently.',max:10,base:2,gr:1.45},
  {id:'stock',icon:'📦',name:'Pre-Stocked Shelves',desc:'Start each night with +$75 per level.',max:5,base:2,gr:1.5},
  {id:'fridge',icon:'🥡',name:'Break Room Fridge',desc:'Sanity decays 8% slower, permanently.',max:5,base:3,gr:1.5},
- {id:'mug',icon:'🫖',name:'Favorite Mug',desc:'Coffee IV Drip lasts +6s longer.',max:5,base:3,gr:1.5},
- {id:'union',icon:'🤝',name:'Union Rep Friend',desc:'+1 audit error tolerance.',max:3,base:4,gr:1.8}
+ {id:'mug',icon:'🫖',name:'Favorite Mug',desc:'Coffee IV Drip lasts +6s longer.',max:5,base:3,gr:1.5}
+];
+/* Coworker roster. Hired with Admin Approval (👔). o/c = orders/calls per sec, err = chance an auto-filled order is a mistake,
+   decay = added to team sanity decay (1.0 = +100%), heal = sanity/sec, pay = +cash mult, tol = +audit error tolerance,
+   nap=[period,secs asleep], caf=[normal,coffee-drip] speed mult, feral = output mult when sanity is 0 (default stalls). */
+const TIERS=[
+ {name:'Tier 1 · Desperate hires',need:0},
+ {name:'Tier 2 · Actually competent',need:8},
+ {name:'Tier 3 · Pretty great',need:25},
+ {name:'Tier 4 · Legendary',need:60}
+];
+const SLOT_AT=[0,8,25,60];
+const CREW=[
+ {id:'tyler',tier:0,icon:'🍕',name:'Intern Tyler',cost:1,o:.05,c:.03,nap:[20,9],trait:'Mostly eats snacks.',desc:'Snack break ~40% of the time. Fills an order when he remembers.',
+  lines:['Tyler: "Is this the real pharmacy or the tutorial?"','Tyler is eating chips directly over the pill counter.','Tyler: "I can\'t find the vault. Is it the closet?" It was the vault.']},
+ {id:'kevin',tier:0,icon:'⚡',name:'Kevin',cost:2,o:.17,c:.04,err:.08,errMsg:'Kevin "helped": that label is on the wrong bag.',trait:'Fast but makes mistakes.',desc:'Fills orders fast, but ~8% of his work is a mistake.',
+  lines:['Kevin: "Done!" (Nobody asked. Nothing is done.)','Kevin high-fives the printer. The printer jams.','Kevin: "Double-check? Triple-check? That\'s just checking with extra steps."']},
+ {id:'brenda',tier:0,icon:'😴',name:'Brenda',cost:2,o:.12,c:.09,decay:1.0,nap:[45,12],trait:'Team sanity decays 2x. Takes naps.',desc:'Decent output, but the whole team loses sanity twice as fast.',
+  lines:['Brenda is asleep standing up. Impressive.','Brenda: "I had a dream I was verifying orders. Then I woke up. Still verifying orders."','Brenda sighs for 40 seconds. The whole room can feel it.']},
+ {id:'tammy',tier:0,icon:'🗣️',name:'Gossip Tammy',cost:3,o:.06,c:.13,decay:.4,pay:.10,trait:'Drains sanity, boosts cash.',desc:'Team sanity decays +40% faster, but nurses tell her everything: +10% cash.',
+  lines:['Tammy: "Did you hear what Dr. Blotch did? Don\'t tell. Everyone knows."','Tammy knows who is dating who on 4 West. She will not stop sharing.','Tammy: "I\'m not gossiping, I\'m doing information management."']},
+ {id:'marcus',tier:1,icon:'🧐',name:'Careful Marcus',cost:5,o:.08,c:.06,tol:1,trait:'Slow, careful, never errs.',desc:'Low output, but his paperwork is spotless: +1 audit error tolerance.',
+  lines:['Marcus is checking the check of the double-check.','Marcus: "I\'d rather be slow than sued."','Marcus labels the label printer. Out of respect.']},
+ {id:'dale',tier:1,icon:'☕',name:'Caffeine Dale',cost:6,o:.10,c:.08,caf:[.5,2.2],trait:'Caffeine-dependent.',desc:'50% speed normally. 220% while the Coffee IV Drip is active.',
+  lines:['Dale: "I\'m not tired, I\'m low on coffee."','Dale vibrates. Politely.','Dale: "Which of us is the coffee machine? Honestly."']},
+ {id:'priya',tier:1,icon:'🧘',name:'Priya',cost:7,o:.05,c:.05,heal:.14,trait:'Sanity anchor.',desc:'Restores 0.14 sanity/sec for everyone, even when the room is feral.',
+  lines:['Priya: "Breathe in. Fill order. Breathe out. Fill order."','Priya hands Dale a tea. Dale is visibly moved.','Priya calmly takes the phone away from a screaming nurse.']},
+ {id:'linh',tier:2,icon:'🎯',name:'Steady Linh',cost:12,o:.17,c:.12,trait:'Steady. Reliable. Unfair.',desc:'Solid all-rounder who never makes mistakes. Stalls only when sanity hits 0.',
+  lines:['Linh: "Done. Verified. Next."','Linh has never once been seen panicking.','Linh quietly fixes the thing you were about to break.']},
+ {id:'mike',tier:2,icon:'💪',name:'Big Mike',cost:14,o:.26,c:.06,decay:.2,trait:'Order machine. Loud.',desc:'Very fast on orders. His gym stories cost +20% team sanity decay.',
+  lines:['Mike: "Protein?" Nobody asked.','Mike carries a whole tote of IV bags like a baby.','Mike: "Bro, do you even verify?" (Yes. Constantly. Please stop.)']},
+ {id:'gerald',tier:3,icon:'🦉',name:'Night Owl Gerald',cost:30,o:.26,c:.2,heal:.05,decay:-.35,feral:.6,trait:'LEGEND. Barely drains sanity.',desc:'-35% team sanity decay, +0.05 sanity/sec, and still works at 60% even when sanity hits 0.',
+  lines:['Gerald has worked nights since before the building had a roof. Allegedly.','Gerald: "Kid, I once filled 400 orders during a blackout. In pencil."','Everyone stands up a little straighter when Gerald walks in.']}
 ];
 const byId=(arr,id)=>arr.find(x=>x.id===id);
 
@@ -433,15 +476,15 @@ function freshShift(startCash){
   const A=TUNING.AUDIT_AT.map(x=>(x+rnd(-0.025,0.025))*TUNING.SHIFT_LEN);
   return {t:0,cash:startCash||0,earned:0,upg:{},disabled:{},orders:[],calls:[],sanity:100,errors:0,auditErrs:0,
     accO:0,accC:0,accR:0,accTO:0,accTC:0,accH:0,ovf:{o:0,c:0},
-    coffeeUntil:0,coffeeReady:0,powerUntil:0,nextEvent:40,nextChaos:8,nextQuip:12,auditIdx:0,auditAt:A,audits:[],
+    coffeeUntil:0,coffeeReady:0,powerUntil:0,nextEvent:40,nextChaos:8,nextQuip:12,nextCrew:20,appr:0,auditIdx:0,auditAt:A,audits:[],
     st:{filled:0,scr:0,scrWrong:0,calls:0,checks:0,counts:0,events:0,eventsFailed:0},oid:0,cid:0};
 }
 function freshState(){
-  return {v:1,phase:'intro',level:1,xp:0,sp:0,skills:{},seniority:0,perks:{},shifts:0,best:'-',sound:true,
+  return {v:1,phase:'intro',level:1,xp:0,sp:0,skills:{},seniority:0,perks:{},approval:0,apprTotal:0,roster:[],shifts:0,best:'-',sound:true,
     life:{filled:0,calls:0,checks:0,scr:0,errors:0,audits:0,earned:0,levels:0},sh:null,report:null,savedAt:0,logs:[]};
 }
 let S=freshState();
-const U={paused:false,puzzle:null,check:null,ev:null,tab:'work',auditOpen:false,lastQuote:'',statsT:0};
+const U={fireArm:null,paused:false,puzzle:null,check:null,ev:null,tab:'work',auditOpen:false,lastQuote:'',statsT:0};
 
 /* ---------------- DERIVED ---------------- */
 const gl=id=>(S.sh&&S.sh.upg[id])||0;
@@ -451,7 +494,11 @@ const pk=id=>S.perks[id]||0;
 const coffeeOn=()=>S.sh.t<S.sh.coffeeUntil;
 const powerOut=()=>S.sh.t<S.sh.powerUntil;
 const prog=()=>clamp(S.sh.t/TUNING.SHIFT_LEN,0,1);
-const payMult=()=>(1+0.25*eff('count'))*(1+0.08*pk('night'))*(coffeeOn()?1.5:1);
+const crew=()=>(S.roster||[]).map(id=>byId(CREW,id)).filter(Boolean);
+const crewSum=k=>crew().reduce((a,c)=>a+(c[k]||0),0);
+const slotsN=()=>SLOT_AT.filter(n=>S.apprTotal>=n).length;
+const tierN=()=>TIERS.filter(t=>S.apprTotal>=t.need).length;
+const payMult=()=>(1+0.25*eff('count'))*(1+0.08*pk('night'))*(1+crewSum('pay'))*(coffeeOn()?1.5:1);
 const xpMult=()=>(1+0.1*sk('read'))*(1+0.1*pk('inst'))*(coffeeOn()?1.5:1);
 const passMult=()=>(coffeeOn()?2:1)*(powerOut()?0:1);
 const orderCap=()=>12+3*gl('cart');
@@ -462,15 +509,26 @@ const lvScale=()=>Math.min(1.6,1+0.04*(S.level-1));
 const orderRate=()=>TUNING.ORDER_RATE*(1+TUNING.RAMP_ORDERS*prog())*lvScale()*diff();
 const callRate=()=>TUNING.CALL_RATE*(1+TUNING.RAMP_CALLS*prog())*lvScale()*diff()*(1-0.08*gl('vm'));
 const robotRate=()=>0.2*eff('robot')*passMult();
-const techOrder=()=>(S.sh.sanity>0?0.1*eff('tech')*passMult():0);
-const techCall=()=>(S.sh.sanity>0?0.08*eff('tech')*passMult():0);
+function napping(c,i){return !!c.nap&&S.sh&&((S.sh.t+i*7)%c.nap[0])<c.nap[1]}
+function cwMult(c,i){
+  if(napping(c,i))return 0;
+  const sane=S.sh.sanity>0?1:(c.feral||0);
+  const caf=c.caf?(coffeeOn()?c.caf[1]:c.caf[0]):1;
+  return sane*caf*passMult();
+}
+const techOrder=()=>crew().reduce((a,c,i)=>a+c.o*cwMult(c,i),0);
+const techCall=()=>crew().reduce((a,c,i)=>a+c.c*cwMult(c,i),0);
+function crewErrP(){ // chance an auto-filled order is a mistake
+  let o=0,e=0;crew().forEach((c,i)=>{const r=c.o*cwMult(c,i);o+=r;e+=r*(c.err||0)});
+  return o>0?e/o:0;
+}
 const headRate=()=>0.12*eff('head')*passMult();
-const errTol=()=>3+gl('binder')+sk('prep')+pk('union');
+const errTol=()=>3+gl('binder')+sk('prep')+crewSum('tol');
 const backTol=()=>10+3*gl('binder');
 const sanMin=()=>35-5*gl('binder');
 function sanDecay(){
   const back=S.sh.orders.length+S.sh.calls.length;
-  return TUNING.SANITY_DECAY*Math.max(0.3,1-0.12*gl('snack'))*Math.max(0.4,1-0.08*pk('fridge'))*(1+1.0*prog())*(1+back/40);
+  return TUNING.SANITY_DECAY*Math.max(0.3,1-0.12*gl('snack'))*Math.max(0.4,1-0.08*pk('fridge'))*Math.max(0.4,1+crewSum('decay'))*(1+1.0*prog())*(1+back/40);
 }
 const coffeeDur=()=>20+6*(gl('coffee')-1)+6*pk('mug');
 const coffeeCd=()=>Math.max(25,50-5*(gl('coffee')-1));
@@ -584,6 +642,29 @@ function onLevelUp(){
   toast('LEVEL UP! Lv '+S.level+' · +1 skill point'+(unlocked.length?' · Unlocked: '+unlocked.join(', '):''));
   log('⭐ Level '+S.level+'! +1 skill point.'+(unlocked.length?' New gear: '+unlocked.join(', ')+'.':''),'good');
   SND.level();buzz([30,40,30]);
+}
+function giveApproval(n,why){
+  if(n<=0)return;
+  const s0=slotsN(),t0=tierN();
+  S.approval+=n;S.apprTotal+=n;if(S.sh)S.sh.appr+=n;
+  if(slotsN()>s0)log('🧑‍⚕️ Admin approved a new desk in the pharmacy! Roster slot '+slotsN()+' unlocked.','good');
+  if(tierN()>t0)log('📋 HR forwarded a stack of better applicants. New coworkers in the Roster tab!','good');
+  if(slotsN()>s0||tierN()>t0)toast('Roster: '+(slotsN()>s0?'new slot unlocked!':'better applicants available!'));
+}
+function hireCrew(id){
+  const c=byId(CREW,id);if(!c||!S.sh)return;
+  if(S.roster.includes(id)||S.roster.length>=slotsN()||S.approval<c.cost||tierN()<=c.tier){buzz(20);return}
+  S.approval-=c.cost;S.roster.push(id);U.fireArm=null;
+  log('🤝 Hired '+c.icon+' '+c.name+'. '+pick(c.lines),'good');
+  SND.buy();buzz(15);renderAll();save();
+}
+function fireCrew(id){
+  const i=S.roster.indexOf(id);if(i<0)return;
+  const c=byId(CREW,id);
+  if(!U.fireArm||U.fireArm.id!==id||U.fireArm.until<performance.now()){U.fireArm={id,until:performance.now()+3000};renderRoster();return}
+  U.fireArm=null;S.roster.splice(i,1);
+  log('📦 '+c.name+' was "let go". They took the good stapler.','bad');
+  SND.bad();buzz(30);renderAll();save();
 }
 function finishOrder(manual,e){
   const k=manual?1:0.8;
@@ -789,6 +870,8 @@ function runAudit(){
     if(owned.length){const g=pick(owned);h.disabled[g.id]=h.t+45;dis=' "'+g.name+'" is disabled for 45s ("budget review").'}
     out='DISCIPLINARY: −'+fmt(lost)+', −25 sanity.'+dis;cls='bad';quote=pick(SCOLD)+' '+pick(SCOLD);
   }
+  const apGain=[0,0,1,3][passed];
+  if(apGain)giveApproval(apGain);
   h.audits.push({passed,cls});S.life.audits++;
   h.auditErrs=0;
   U.paused=true;U.auditOpen=true;
@@ -800,7 +883,7 @@ function runAudit(){
     if(!U.auditOpen)return;
     box.innerHTML='<h2>AUDIT RESULTS</h2>'+
       checks.map(c=>'<div class="ck fadein"><span>'+(c.ok?'✅':'❌')+' '+c.l+'</span><span>'+c.v+' <small style="color:var(--dim)">('+c.need+')</small></span></div>').join('')+
-      '<div class="quote fadein">'+quote+'</div><div class="outcome '+cls+' fadein">'+out+'</div>'+
+      '<div class="quote fadein">'+quote+'</div><div class="outcome '+cls+' fadein">'+out+'</div>'+(apGain?'<div class="outcome good fadein">+'+apGain+' 👔 Admin Approval</div>':'<div class="note fadein" style="text-align:center">No Admin Approval this time.</div>')+
       '<button class="bigbtn" id="auditok" style="visibility:hidden">'+(passed<2?'Smile and nod':'Back to work')+'</button>';
     const b=$('auditok');
     setTimeout(()=>{b.style.visibility='visible'},700);
@@ -824,9 +907,12 @@ function endShift(){
   const g=grade(score);
   const sen={S:5,A:4,B:3,C:2,D:1}[g]+Math.floor(S.level/5);
   S.seniority+=sen;S.shifts++;
+  const sweep=h.audits.length>=3&&h.audits.every(a=>a.passed===3);
+  const apBonus={S:3,A:2,B:1}[g]||0,apSweep=sweep?2:0;
+  giveApproval(apBonus+apSweep);
   const order='DCBAS';if(S.best==='-'||order.indexOf(g)>order.indexOf(S.best))S.best=g;
   S.report={g,score,sen,filled:h.st.filled,scr:h.st.scr,scrWrong:h.st.scrWrong,calls:h.st.calls,checks:h.st.checks,errors:h.errors,
-    earned:h.earned,audits:h.audits.map(a=>a.passed),events:h.st.events,left:h.orders.length+h.calls.length,level:S.level};
+    earned:h.earned,audits:h.audits.map(a=>a.passed),events:h.st.events,left:h.orders.length+h.calls.length,level:S.level,appr:h.appr,apprBonus:apBonus+apSweep,apprBal:S.approval};
   save();showHandoff();SND.level();
 }
 function showHandoff(){
@@ -845,6 +931,8 @@ function showHandoff(){
    '<div class="kv"><span>💵 Earned</span><b>'+fmt(r.earned)+'</b></div>'+
    '<div class="kv"><span>📥 Left for day shift</span><b>'+r.left+'</b></div></div>'+
    '<div class="outcome good">+'+r.sen+' Seniority earned</div>'+
+   '<div class="outcome good" style="background:#1d2a3a;color:#9cc7ff">+'+(r.appr||0)+' 👔 Admin Approval earned'+(r.apprBonus?' (incl. +'+r.apprBonus+' shift bonus)':'')+'</div>'+
+   '<div class="sub" style="margin-top:-4px">You have '+S.approval+' 👔 to spend in the Roster tab.</div>'+
    '<div class="sec" style="margin:0">Seniority Perks <small id="hsen"></small></div><div id="hperks"></div>'+
    '<div class="note" style="margin:0">Next night: gear resets. Your level, skills &amp; perks stay. The hospital gets a little busier.</div>'+
    '<button class="bigbtn" id="clockout" style="visibility:hidden">Clock out &amp; start a new night</button>';
@@ -875,11 +963,11 @@ function tick(dt){
   h.accO+=orderRate()*dt*rnd(0.5,1.5);while(h.accO>=1){h.accO--;spawnOrder()}
   h.accC+=callRate()*dt*rnd(0.5,1.5);while(h.accC>=1){h.accC--;spawnCall()}
   h.accR+=robotRate()*dt;while(h.accR>=1){h.accR--;const i=firstPlain();if(i>=0){h.orders.splice(i,1);finishOrder(false)}}
-  h.accTO+=techOrder()*dt;while(h.accTO>=1){h.accTO--;const i=firstPlain();if(i>=0){h.orders.splice(i,1);finishOrder(false)}}
+  h.accTO+=techOrder()*dt;while(h.accTO>=1){h.accTO--;const i=firstPlain();if(i>=0){h.orders.splice(i,1);finishOrder(false);crewMistake()}}
   h.accTC+=techCall()*dt;h.accH+=headRate()*dt;
   while(h.accTC>=1){h.accTC--;autoCall()}
   while(h.accH>=1){h.accH--;autoCall()}
-  h.sanity=clamp(h.sanity-sanDecay()*dt,0,100);
+  h.sanity=clamp(h.sanity-sanDecay()*dt+crewSum('heal')*dt,0,100);
   if(h.sanity<=0){
     h.nextChaos-=dt;
     if(h.nextChaos<=0){h.nextChaos=rnd(9,14);chaos()}
@@ -892,8 +980,13 @@ function tick(dt){
     if(h.nextEvent<=0){h.nextEvent=rnd(28,48);spawnEvent()}
   }
   h.nextQuip-=dt;if(h.nextQuip<=0){h.nextQuip=rnd(18,30);log('💭 '+pick(QUIPS))}
+  h.nextCrew-=dt;if(h.nextCrew<=0){h.nextCrew=rnd(22,38);const cs=crew();if(cs.length){const c=pick(cs);log(c.icon+' '+pick(c.lines))}}
   if(h.auditIdx<h.auditAt.length&&h.t>=h.auditAt[h.auditIdx]){h.auditIdx++;runAudit();return}
   if(h.t>=TUNING.SHIFT_LEN)endShift();
+}
+function crewMistake(){
+  const cs=crew().filter(c=>c.err);if(!cs.length)return;
+  if(Math.random()<crewErrP())err(pick(cs).errMsg);
 }
 function autoCall(){
   const h=S.sh;if(!h.calls.length)return;
@@ -1037,26 +1130,67 @@ function buyPerk(id){
 function renderStats(){
   const h=S.sh;if(!h)return;
   const rows=[['Night #',S.shifts+1],['Orders filled',h.st.filled],['Scribbles decoded',h.st.scr+' ('+h.st.scrWrong+' wrong)'],['Calls answered',h.st.calls],['Sanity checks',h.st.checks],['Events handled',h.st.events+' / '+(h.st.events+h.st.eventsFailed)],['Errors',h.errors],['Audits passed',h.audits.filter(a=>a.passed===3).length+' / '+h.audits.length],['Earned this night',fmt(h.earned)],
-   ['Orders arriving',orderRate().toFixed(2)+'/s'],['Calls arriving',callRate().toFixed(2)+'/s'],['Auto orders',(robotRate()+techOrder()).toFixed(2)+'/s'],['Auto calls',(headRate()+techCall()).toFixed(2)+'/s'],['Pay multiplier','x'+payMult().toFixed(2)],['XP multiplier','x'+xpMult().toFixed(2)],['Audit limits','≤'+errTol()+' errors · ≤'+backTol()+' backlog · ≥'+sanMin()+'% sanity']];
+   ['Orders arriving',orderRate().toFixed(2)+'/s'],['Calls arriving',callRate().toFixed(2)+'/s'],['Auto orders',(robotRate()+techOrder()).toFixed(2)+'/s'],['Auto calls',(headRate()+techCall()).toFixed(2)+'/s'],['Pay multiplier','x'+payMult().toFixed(2)],['XP multiplier','x'+xpMult().toFixed(2)],['Roster',crew().length+' / '+slotsN()+' desks'],['Audit limits','≤'+errTol()+' errors · ≤'+backTol()+' backlog · ≥'+sanMin()+'% sanity']];
   $('statshift').innerHTML='<div class="sec" style="margin-top:0">This night</div>'+rows.map(r=>'<div class="kv"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>').join('');
+  $('apprbal').textContent='👔 '+S.approval+' Approval';
+  const nt=TIERS.find(t=>S.apprTotal<t.need);
+  $('statappr').innerHTML=[['Approval to spend','👔 '+S.approval],['Total earned (all nights)',S.apprTotal],['Roster desks',crew().length+' / '+slotsN()],['Next unlock',nt?nt.need+' total (need '+(nt.need-S.apprTotal)+' more)':'Everything unlocked']].map(r=>'<div class="kv"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>').join('')+
+   '<div class="note" style="margin:6px 0 0">Earned from audits: +3 for an exemplary audit, +1 for "meets expectations", nothing for write-ups. Good shift grades add a bonus. Spend it in the Roster tab.</div>';
   const L=S.life;
   $('statlife').innerHTML=[['Nights worked',S.shifts],['Best grade',S.best],['Level',S.level],['Orders filled',L.filled],['Scribbles decoded',L.scr],['Calls answered',L.calls],['Sanity checks',L.checks],['Errors made',L.errors],['Audits survived',L.audits],['Lifetime earnings',fmt(L.earned)]].map(r=>'<div class="kv"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>').join('');
+}
+function crewStat(c){
+  const b=[];
+  if(c.o)b.push('📦 '+c.o.toFixed(2)+'/s');if(c.c)b.push('📞 '+c.c.toFixed(2)+'/s');
+  if(c.heal)b.push('🧠 +'+c.heal+'/s');
+  return b.join(' · ');
+}
+function renderRoster(){
+  if(!S.sh){return}
+  const n=slotsN(),ts=tierN(),cs=crew(),now=performance.now();
+  let h='<div class="sec" style="margin-top:0">Your Roster <small>👔 '+S.approval+' Approval</small></div>'+
+   '<div class="note" style="margin-top:0">Hire with Admin Approval from audits. Coworkers stay until you fire them. Sanity at 0 stalls most of them.</div>';
+  for(let i=0;i<4;i++){
+    if(i>=n){h+='<div class="item lock"><div class="ic">🔒</div><div class="im"><b>Desk '+(i+1)+'</b><p>Unlocks at '+SLOT_AT[i]+' total 👔 earned (you have '+S.apprTotal+').</p></div></div>';continue}
+    const c=cs[i];
+    if(!c){h+='<div class="item empty"><div class="ic">🪑</div><div class="im"><b>Empty desk</b><p>Hire someone below. Anyone. Please.</p></div></div>';continue}
+    let mood='';if(S.phase==='shift'||S.phase==='handoff'){if(napping(c,i))mood='😴 napping';else if(S.sh.sanity<=0)mood=c.feral?'🌀 feral (60%)':'🌀 stalled'}
+    const armed=U.fireArm&&U.fireArm.id===c.id&&U.fireArm.until>now;
+    h+='<div class="item"><div class="ic">'+c.icon+'</div><div class="im"><b>'+c.name+(mood?'<em class="mood">'+mood+'</em>':'')+'</b><p class="tr">'+c.trait+'</p><p>'+c.desc+'</p><p class="st">'+crewStat(c)+'</p></div>'+
+     '<button class="buy fire'+(armed?' arm':'')+'" data-fire="'+c.id+'">'+(armed?'Sure?<br>Tap again':'Fire')+'</button></div>';
+  }
+  const free=cs.length<n;
+  h+='<div class="sec">Applicants <small>'+S.apprTotal+' total 👔 earned</small></div>';
+  TIERS.forEach((t,ti)=>{
+    const list=CREW.filter(c=>c.tier===ti&&!S.roster.includes(c.id));
+    if(ti>=ts){h+='<div class="tier">'+t.name+'</div><div class="item lock"><div class="ic">🔒</div><div class="im"><b>No applicants yet</b><p>Earn '+t.need+' total 👔 to unlock (have '+S.apprTotal+').</p></div></div>';return}
+    if(!list.length)return;
+    h+='<div class="tier">'+t.name+'</div>';
+    list.forEach(c=>{
+      const can=free&&S.approval>=c.cost;
+      h+='<div class="item'+(can?' can':'')+'"><div class="ic">'+c.icon+'</div><div class="im"><b>'+c.name+'</b><p class="tr">'+c.trait+'</p><p>'+c.desc+'</p><p class="st">'+crewStat(c)+'</p></div>'+
+       '<button class="buy" data-hire="'+c.id+'">'+(!free?'Roster<br>full':'Hire<br>'+c.cost+' 👔')+'</button></div>';
+    });
+  });
+  if(lastCache.roster!==h){lastCache.roster=h;$('roster').innerHTML=h}
 }
 function renderTabsDot(){
   if(!S.sh)return;
   const any=SKILLS.some(s=>itemInfo(s,'skill').can)||GEAR.some(g=>itemInfo(g,'gear').can);
   $('upgdot').classList.toggle('hidden',!any||U.tab==='upg');
+  const hire=crew().length<slotsN()&&CREW.some(c=>c.tier<tierN()&&!S.roster.includes(c.id)&&S.approval>=c.cost);
+  $('rosdot').classList.toggle('hidden',!hire||U.tab==='roster');
 }
 function renderAll(){
   if(!S.sh)return;
-  renderHUD();renderWork();updateShop();renderStats();renderTabsDot();renderLog();renderPerks();
+  renderHUD();renderWork();updateShop();renderStats();renderRoster();renderTabsDot();renderLog();renderPerks();
   $('mute').textContent=S.sound?'🔊':'🔇';$('mute2').textContent=S.sound?'🔊 Sound: on':'🔇 Sound: off';
 }
 function setTab(t){
   U.tab=t;
   document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
   document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));
-  if(S.sh){if(t==='upg')updateShop();if(t==='stats'){renderStats();renderPerks()}renderTabsDot()}
+  if(S.sh){if(t==='upg')updateShop();if(t==='roster')renderRoster();if(t==='stats'){renderStats();renderPerks()}renderTabsDot()}
   SND.tap();
 }
 
@@ -1075,6 +1209,23 @@ function load(){
     S.life=Object.assign(f.life,p.life||{});
     if(!Array.isArray(S.logs))S.logs=[];
     if(p.sh){const fs=freshShift(0);S.sh=Object.assign(fs,p.sh);S.sh.st=Object.assign(fs.st,p.sh.st||{});S.sh.ovf=Object.assign(fs.ovf,p.sh.ovf||{})}
+    // --- migrations (older saves) ---
+    if(!S.perks||typeof S.perks!=='object')S.perks={};
+    if(S.perks.union){ // Union Rep Friend removed: refund Seniority spent on it
+      for(let i=0;i<S.perks.union;i++)S.seniority+=Math.ceil(4*Math.pow(1.8,i));
+    }
+    delete S.perks.union;
+    if(S.sh&&S.sh.upg&&S.sh.upg.tech){ // Tech Friend gear replaced by the roster: refund tonight's cash
+      for(let i=0;i<S.sh.upg.tech;i++)S.sh.cash+=Math.round(1040*Math.pow(1.75,i));
+      delete S.sh.upg.tech;
+    }
+    if(S.sh&&S.sh.disabled)delete S.sh.disabled.tech;
+    const oldSave=!('apprTotal' in p);
+    if(typeof S.approval!=='number'||!isFinite(S.approval))S.approval=0;
+    if(typeof S.apprTotal!=='number'||!isFinite(S.apprTotal))S.apprTotal=0;
+    if(oldSave&&(S.shifts>0||S.level>1)){S.approval+=3;S.apprTotal+=3;S.logs.unshift({m:'👔 HR converted your old Tech Friends into a welcome gift: +3 Admin Approval.',k:'good'})}
+    if(!Array.isArray(S.roster))S.roster=[];
+    S.roster=S.roster.filter((id,i,a)=>byId(CREW,id)&&a.indexOf(id)===i).slice(0,slotsN());
     return true;
   }catch(e){S=freshState();return false}
 }
@@ -1082,7 +1233,9 @@ function offlineReward(){
   if(S.phase!=='shift'||!S.sh||!S.savedAt)return;
   const away=Math.min(TUNING.OFFLINE_CAP,(Date.now()-S.savedAt)/1000);
   if(away<30)return;
-  const oRate=0.2*gl('robot')+0.1*gl('tech'),cRate=0.12*gl('head')+0.08*gl('tech');
+  const cs=crew(),av=c=>1-(c.nap?c.nap[1]/c.nap[0]:0);
+  const crewO=cs.reduce((a,c)=>a+c.o*av(c)*(c.caf?c.caf[0]:1),0),crewC=cs.reduce((a,c)=>a+c.c*av(c)*(c.caf?c.caf[0]:1),0);
+  const oRate=0.2*gl('robot')+crewO,cRate=0.12*gl('head')+crewC;
   const cash=0.4*away*(oRate*TUNING.ORDER_PAY*0.8+cRate*TUNING.CALL_PAY*0.8)*(1+0.25*gl('count'));
   const xp=0.4*away*(oRate*TUNING.ORDER_XP*0.8+cRate*TUNING.CALL_XP*0.8);
   if(cash>=1){gain(cash,xp,null);log('🌙 While you were away ('+Math.round(away)+'s) your helpers earned '+fmt(cash)+'. The pharmacy is "fine".','good')}
@@ -1103,7 +1256,7 @@ function startGame(){
 function showIntro(){
   const has=S.phase!=='intro';
   $('startbtn').textContent=has?'Continue Shift':'Start Shift';
-  $('introsub').textContent=has?'Level '+S.level+' · Night #'+(S.shifts+1)+(S.seniority?' · 🎖️ '+S.seniority+' Seniority':''):'Best played while slightly under-caffeinated.';
+  $('introsub').textContent=has?'Level '+S.level+' · Night #'+(S.shifts+1)+(S.seniority?' · 🎖️ '+S.seniority+' Seniority':'')+(S.approval?' · 👔 '+S.approval:''):'Best played while slightly under-caffeinated.';
   $('intro').classList.remove('hidden');$('game').classList.add('hidden');
 }
 function init(){
@@ -1120,6 +1273,10 @@ function init(){
   document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
   const toggleSound=()=>{S.sound=!S.sound;ensureAudio();$('mute').textContent=S.sound?'🔊':'🔇';$('mute2').textContent=S.sound?'🔊 Sound: on':'🔇 Sound: off';if(S.sound)SND.tap();save()};
   $('mute').addEventListener('click',toggleSound);$('mute2').addEventListener('click',toggleSound);
+  $('roster').addEventListener('click',e=>{
+    const b=e.target.closest('button[data-hire],button[data-fire]');if(!b)return;
+    if(b.dataset.hire)hireCrew(b.dataset.hire);else fireCrew(b.dataset.fire);
+  });
   $('resetbtn').addEventListener('click',()=>$('confirm').classList.remove('hidden'));
   $('confirmno').addEventListener('click',()=>$('confirm').classList.add('hidden'));
   $('confirmyes').addEventListener('click',()=>{
@@ -1140,6 +1297,7 @@ function init(){
       if(S.sh&&S.phase==='shift'){
         renderHUD();renderWork();
         if(U.tab==='upg')updateShop();
+        if(U.tab==='roster'){U.rosT=(U.rosT||0)+dt;if(U.rosT>0.5){U.rosT=0;renderRoster()}}
         if(U.tab==='stats'){U.statsT+=dt;if(U.statsT>0.8){U.statsT=0;renderStats()}}
         renderTabsDot();
       }
@@ -1154,7 +1312,7 @@ window.__game={
   fill:doFill,phone:doPhone,check:doCheck,buy,save,renderAll,setTab,tapEvent,coffee:doCoffee,
   puzzleAnswer(){if(!U.puzzle)return false;answerPuzzle(U.puzzle.choices.indexOf(U.puzzle.real),null);return true},
   checkAnswer(){if(!U.check)return false;answerCheck(U.check.opts.findIndex(o=>o.ok),null);return true},
-  cash(n){S.sh.cash+=n;renderHUD()},gain,gameActive
+  cash(n){S.sh.cash+=n;renderHUD()},gain,gameActive,giveApproval,hire:hireCrew,fire:fireCrew,renderRoster,endShift,CREW,slotsN,tierN
 };
 init();
 })();
