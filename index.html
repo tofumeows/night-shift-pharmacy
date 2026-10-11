@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Night Shift Pharmacy</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Night Shift Pharmacy">
+<meta name="theme-color" content="#081114">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23081114'/%3E%3Cpath d='M38 15h24v23h23v24H62v23H38V62H15V38h23z' fill='%231fd1b0'/%3E%3C/svg%3E">
+<style>
+:root{--bg:#081114;--panel:#10222a;--panel2:#16303a;--teal:#1fd1b0;--green:#46e08a;--red:#ff5c6c;--amber:#ffc14d;--text:#e8f5f2;--dim:#93b3ae;--line:#23444f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font:16px/1.3 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,Roboto,"Helvetica Neue",Arial,sans-serif;overflow:hidden;overscroll-behavior:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cursor:pointer}
+.hidden{display:none!important}
+#app{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;overflow:hidden;background:radial-gradient(120% 60% at 50% -10%,#0f2a30 0%,var(--bg) 60%)}
+.screen{position:absolute;inset:0;display:flex;flex-direction:column}
+
+/* ---------- intro ---------- */
+#intro{align-items:center;justify-content:center;text-align:center;padding:calc(24px + env(safe-area-inset-top)) 28px calc(24px + env(safe-area-inset-bottom));gap:18px;z-index:5;background:radial-gradient(100% 70% at 50% 20%,#0f3a3a 0%,var(--bg) 70%)}
+.cross{position:relative;width:96px;height:96px;filter:drop-shadow(0 0 22px rgba(31,209,176,.55));animation:glow 3s ease-in-out infinite}
+.cross:before,.cross:after{content:"";position:absolute;background:linear-gradient(160deg,var(--green),var(--teal));border-radius:8px}
+.cross:before{left:33px;top:0;width:30px;height:96px}.cross:after{left:0;top:33px;width:96px;height:30px}
+@keyframes glow{50%{filter:drop-shadow(0 0 34px rgba(70,224,138,.8))}}
+#intro h1{margin:0;font-size:34px;line-height:1.05;letter-spacing:.5px;font-weight:900;text-transform:uppercase}
+#intro h1 span{color:var(--teal)}
+#intro .tag{font-size:18px;color:var(--dim);max-width:320px}
+#intro .small{font-size:14px;color:var(--dim);opacity:.8}
+.bigbtn{min-height:64px;padding:0 34px;border-radius:18px;font-size:22px;font-weight:800;color:#04201b;background:linear-gradient(180deg,var(--green),var(--teal));box-shadow:0 6px 0 #0d7b68,0 10px 24px rgba(31,209,176,.3);transition:transform .08s,box-shadow .08s}
+.bigbtn:active{transform:translateY(5px);box-shadow:0 1px 0 #0d7b68}
+.bigbtn.ghost{background:var(--panel2);color:var(--text);box-shadow:0 5px 0 #0a171c}
+.bigbtn.danger{background:linear-gradient(180deg,#ff8590,var(--red));box-shadow:0 6px 0 #a02a36;color:#2b0509}
+
+/* ---------- HUD ---------- */
+#game{padding-top:env(safe-area-inset-top)}
+#hud{flex:none;padding:8px 12px 8px;background:rgba(8,17,20,.92);border-bottom:1px solid var(--line);display:grid;gap:7px}
+.hrow{display:flex;align-items:center;gap:10px}
+#clock{font-size:26px;font-weight:900;letter-spacing:.5px;font-variant-numeric:tabular-nums;min-width:112px}
+#clock small{font-size:13px;font-weight:700;color:var(--dim);margin-left:2px}
+#shiftbar{flex:1;height:10px;border-radius:6px;background:#0c1b20;border:1px solid var(--line);overflow:hidden;position:relative}
+#shiftbar>div:first-child{height:100%;width:0;background:linear-gradient(90deg,#3558d6,#9a6bff,#ffb25c)}
+.audmark{position:absolute;top:0;width:3px;height:100%;background:var(--red)}
+#mute{width:46px;height:46px;border-radius:14px;background:var(--panel2);font-size:22px;flex:none}
+#lvl{font-weight:800;font-size:16px;min-width:44px}
+#xpbar{flex:1;height:20px;border-radius:10px;background:#0c1b20;border:1px solid var(--line);position:relative;overflow:hidden}
+#xpbar div{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--green));transition:width .2s}
+#xpbar span{position:absolute;inset:0;text-align:center;font-size:13px;font-weight:700;line-height:18px;text-shadow:0 1px 2px #000}
+#cash{font-size:22px;font-weight:900;color:var(--green);font-variant-numeric:tabular-nums;min-width:96px;text-align:right}
+.chip{display:flex;align-items:center;gap:6px;height:34px;padding:0 10px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-weight:800;font-size:15px;white-space:nowrap}
+.chip.flash{animation:flash .5s}
+@keyframes flash{0%,60%{background:var(--red);color:#fff}}
+#sanchip{flex:1;min-width:0}
+#sanbar{flex:1;height:12px;border-radius:7px;background:#0c1b20;overflow:hidden;border:1px solid var(--line)}
+#sanbar div{height:100%;width:100%;background:var(--green);transition:width .2s,background .3s}
+#sanchip.low #sanbar div{background:var(--red)}#sanchip.low{animation:flash 1s infinite}
+#sanchip.mid #sanbar div{background:var(--amber)}
+#spchip{color:var(--amber)}
+
+/* ---------- main / tabs ---------- */
+#main{flex:1;min-height:0;position:relative}
+.tab{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:10px 12px 14px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:none}
+.tab.on{display:block}
+#tabs{flex:none;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(8,17,20,.96);border-top:1px solid var(--line)}
+#tabs button{height:56px;border-radius:14px;background:var(--panel);font-weight:800;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative;color:var(--dim)}
+#tabs button b{font-size:21px;line-height:1}
+#tabs button.on{background:var(--panel2);color:var(--teal);box-shadow:inset 0 -3px 0 var(--teal)}
+#tabs .dot{position:absolute;top:6px;right:22%;width:12px;height:12px;border-radius:6px;background:var(--red);border:2px solid #081114}
+
+/* ---------- work ---------- */
+#fxrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+#fxrow:empty{display:none}
+.fx{padding:5px 10px;border-radius:10px;font-size:14px;font-weight:800;background:var(--panel2);border:1px solid var(--line)}
+.fx.good{color:var(--green);border-color:#1d6a47}.fx.bad{color:var(--red);border-color:#7a2a34}
+#ev{border-radius:18px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,#3a1018,#240b11);border:2px solid var(--red);animation:evpulse 1s infinite}
+#ev.nice{background:linear-gradient(180deg,#0f3a2b,#0b261e);border-color:var(--green);animation:none}
+@keyframes evpulse{50%{box-shadow:0 0 0 4px rgba(255,92,108,.25)}}
+#ev .eh{display:flex;gap:10px;align-items:center}
+#ev .ei{font-size:36px}
+#ev .et b{display:block;font-size:18px}#ev .et span{font-size:14px;color:#f2c9ce}
+#ev.nice .et span{color:#c6f2d9}
+#evbar{height:8px;background:#0006;border-radius:5px;margin:10px 0;overflow:hidden}#evbar div{height:100%;background:var(--amber);width:100%}
+#evbtn{width:100%;min-height:58px;border-radius:14px;font-size:19px;font-weight:900;background:var(--red);color:#2b0509;box-shadow:0 5px 0 #8c2430;transition:transform .06s}
+#ev.nice #evbtn{background:var(--green);color:#04261a;box-shadow:0 5px 0 #1a7a4b}
+#evbtn:active{transform:translateY(4px);box-shadow:0 1px 0 #8c2430}
+
+.task{margin-bottom:10px;background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;position:relative}
+.tbtn{width:100%;min-height:88px;display:flex;align-items:center;gap:12px;padding:10px 14px;text-align:left;background:linear-gradient(180deg,#17414a,#12313a);transition:transform .07s,filter .07s;position:relative}
+.tbtn:active{transform:scale(.975);filter:brightness(1.25)}
+.ti{font-size:40px;line-height:1;flex:none;width:48px;text-align:center}
+.tm{flex:1;min-width:0}.tm b{display:block;font-size:21px;font-weight:900}
+.tm small{display:block;font-size:14px;color:#b6d3ce;margin-top:2px;line-height:1.25;max-height:36px;overflow:hidden}
+.badge{flex:none;min-width:66px;height:56px;border-radius:16px;background:#0a1a1f;border:2px solid var(--green);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:26px;font-weight:900;line-height:1;transition:transform .1s;font-variant-numeric:tabular-nums}
+.badge i{font-size:13px;font-style:normal;color:var(--dim);font-weight:700;margin-top:2px}
+.badge.warn{border-color:var(--amber);color:var(--amber)}
+.badge.hot{border-color:var(--red);color:var(--red);animation:badgehot .6s infinite}
+.badge.pop{transform:scale(1.18)}
+@keyframes badgehot{50%{background:#3a1018}}
+.qbar{height:6px;background:#0a1a1f}.qbar div{height:100%;width:0;background:var(--green);transition:width .15s,background .2s}
+#t-phone.ring .ti{animation:ring .35s infinite}
+@keyframes ring{25%{transform:rotate(-16deg)}75%{transform:rotate(16deg)}}
+.panel{padding:12px;display:grid;gap:8px;background:#0c1a20}
+.paper{position:relative;background:#f1e7c0;color:#1b1f4a;border-radius:10px;padding:10px 12px 8px;min-height:116px;box-shadow:inset 0 0 28px rgba(120,90,30,.35);background-image:repeating-linear-gradient(180deg,transparent 0 31px,rgba(70,90,160,.18) 31px 32px);overflow:hidden}
+.paper:after{content:"";position:absolute;right:-18px;bottom:-18px;width:70px;height:70px;border-radius:50%;border:5px solid rgba(110,60,20,.14);box-shadow:0 0 0 6px rgba(110,60,20,.06)}
+.rx{font:italic 900 22px Georgia,serif;color:#7a1f2b}
+.scr{font-family:"Bradley Hand","Snell Roundhand","Segoe Script","Noteworthy","Comic Sans MS",cursive;font-weight:700;line-height:1.2;min-height:56px;padding:2px 0;word-break:break-all}
+.scr span{display:inline-block}
+.scr .blot{opacity:.6;letter-spacing:-2px}
+.sig{font-family:"Bradley Hand","Snell Roundhand","Segoe Script","Comic Sans MS",cursive;font-size:17px;opacity:.85;transform:rotate(-1.5deg)}
+.docn{position:absolute;right:12px;top:10px;font-family:"Bradley Hand","Snell Roundhand","Segoe Script",cursive;font-size:17px;color:#2a3070;transform:rotate(-4deg)}
+.q{font-size:15px;color:var(--dim);font-weight:700}
+.opt{min-height:54px;width:100%;border-radius:14px;padding:8px 14px;text-align:left;font-size:18px;font-weight:800;background:var(--panel2);border:2px solid var(--line);transition:transform .06s,background .1s}
+.opt:active{transform:scale(.97);background:#1d4552;border-color:var(--teal)}
+.opt.txt{font-size:16px;font-weight:700;line-height:1.25}
+.opt .tm2{color:var(--amber)}
+#coffee{width:100%;min-height:58px;border-radius:16px;font-size:18px;font-weight:900;background:linear-gradient(180deg,#5b3a1d,#3f2813);border:2px solid #a8702f;color:#ffd9a3;margin-bottom:10px;position:relative;overflow:hidden}
+#coffee.cd{filter:grayscale(.6) brightness(.7)}#coffee.on{border-color:var(--amber);box-shadow:0 0 18px rgba(255,193,77,.5);animation:evpulse .6s infinite}
+#coffee i{position:absolute;left:0;bottom:0;height:5px;background:var(--amber);width:0}
+#log{background:#0a161b;border:1px solid var(--line);border-radius:16px;padding:10px 12px;display:grid;gap:5px}
+#log div{font-size:14.5px;color:var(--dim);line-height:1.3}
+#log div:first-child{color:var(--text);font-weight:600}
+#log div:nth-child(n+4){opacity:.55}
+
+/* ---------- shop ---------- */
+.sec{font-size:18px;font-weight:900;margin:6px 2px 8px;display:flex;justify-content:space-between;align-items:baseline}
+.sec small{font-size:14px;color:var(--amber);font-weight:800}
+.item{display:flex;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:10px;margin-bottom:8px}
+.item .ic{font-size:34px;width:44px;text-align:center;flex:none}
+.item .im{flex:1;min-width:0}
+.item b{font-size:17px;display:block}
+.item em{font-style:normal;color:var(--teal);font-size:13px;font-weight:800;margin-left:4px}
+.item p{margin:2px 0 0;font-size:14px;color:var(--dim);line-height:1.25}
+.item p.tg{color:var(--red);font-weight:800}
+.item p.tg:empty{display:none}
+.buy{flex:none;width:92px;min-height:60px;border-radius:14px;font-weight:900;font-size:16px;line-height:1.15;background:#27404a;color:#8aa5a1}
+.item.can .buy{background:linear-gradient(180deg,var(--green),var(--teal));color:#04201b;box-shadow:0 4px 0 #0d7b68}
+.item.can .buy:active{transform:translateY(3px);box-shadow:0 1px 0 #0d7b68}
+.item.lock{opacity:.55}
+.item.max .buy{background:#173a2d;color:var(--green)}
+.item.dis{border-color:var(--red)}
+.buy.bump{animation:bump .3s}@keyframes bump{50%{transform:scale(1.12)}}
+
+/* ---------- stats ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:10px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #1a333c;font-size:16px}
+.kv:last-child{border:0}.kv b{font-variant-numeric:tabular-nums;text-align:right}
+.smallbtn{min-height:50px;padding:0 18px;border-radius:14px;background:var(--panel2);font-weight:800;font-size:16px;margin:4px 6px 4px 0}
+.smallbtn.red{background:#3a1018;color:#ff9aa4}
+.note{font-size:14px;color:var(--dim);margin:6px 2px}
+
+/* ---------- overlays ---------- */
+.ov{position:absolute;inset:0;z-index:20;background:rgba(3,8,10,.9);display:flex;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));overflow-y:auto}
+.box{width:100%;max-width:420px;background:var(--panel);border:2px solid var(--line);border-radius:22px;padding:18px;display:grid;gap:12px;margin:auto}
+.box h2{margin:0;font-size:24px;text-align:center;line-height:1.15}
+.box .sub{text-align:center;color:var(--dim);font-size:15px}
+#audit .box{border-color:var(--red)}
+#audit .siren{font-size:56px;text-align:center;animation:ring .4s infinite}
+#audit h2{color:var(--red);font-size:28px;letter-spacing:1px}
+.ck{display:flex;justify-content:space-between;gap:8px;font-size:16px;font-weight:700;padding:8px 10px;background:#0c1a20;border-radius:12px}
+.quote{font-style:italic;text-align:center;font-size:17px;padding:6px 8px}
+.outcome{text-align:center;font-weight:900;font-size:20px;padding:10px;border-radius:14px}
+.outcome.good{background:#0f3a2b;color:var(--green)}.outcome.bad{background:#3a1018;color:var(--red)}.outcome.meh{background:#2f2a14;color:var(--amber)}
+#handoff .box{border-color:var(--teal)}
+.grade{font-size:84px;font-weight:900;text-align:center;line-height:1;color:var(--teal);text-shadow:0 0 30px rgba(31,209,176,.5)}
+.fadein{animation:fadein .5s both}@keyframes fadein{from{opacity:0;transform:translateY(8px)}}
+#toast{position:absolute;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:30;pointer-events:none;display:flex;justify-content:center}
+#toast div{background:var(--teal);color:#04201b;font-weight:900;font-size:17px;padding:12px 16px;border-radius:14px;box-shadow:0 8px 24px #0008;text-align:center;animation:toast 2.6s both}
+#toast div.bad{background:var(--red);color:#2b0509}
+@keyframes toast{0%{transform:translateY(-70px);opacity:0}10%,85%{transform:none;opacity:1}100%{transform:translateY(-70px);opacity:0}}
+.float{position:fixed;z-index:40;pointer-events:none;font-weight:900;font-size:21px;text-shadow:0 2px 4px #000;animation:floatup .9s ease-out forwards;white-space:nowrap}
+@keyframes floatup{from{transform:translate(-50%,0) scale(.7);opacity:1}to{transform:translate(-50%,-70px) scale(1.15);opacity:0}}
+body.shake #app{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+body.coffee #hud{box-shadow:0 0 16px rgba(255,193,77,.4)}
+body.blackout #main{filter:brightness(.55)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="intro" class="screen">
+    <div class="cross"></div>
+    <h1>Night Shift<br><span>Pharmacy</span></h1>
+    <div class="tag">You're the only one in the pharmacy from 7 PM to 7 AM. The orders keep coming. The nurses are feral.</div>
+    <button id="startbtn" class="bigbtn">Start Shift</button>
+    <div class="small" id="introsub">Best played while slightly under-caffeinated.</div>
+  </div>
+
+  <div id="game" class="screen hidden">
+    <div id="hud">
+      <div class="hrow">
+        <div id="clock">7:00<small>PM</small></div>
+        <div id="shiftbar"><div></div></div>
+        <button id="mute" aria-label="Toggle sound">🔊</button>
+      </div>
+      <div class="hrow">
+        <div id="lvl">Lv 1</div>
+        <div id="xpbar"><div></div><span>0 / 50 XP</span></div>
+        <div id="cash">$0</div>
+      </div>
+      <div class="hrow">
+        <div class="chip" id="errchip">⚠️ <span id="errn">0</span> errors</div>
+        <div class="chip" id="sanchip">🧠 <div id="sanbar"><div></div></div><span id="sann">100</span></div>
+        <div class="chip" id="spchip">⭐ <span id="spn">0 SP</span></div>
+      </div>
+    </div>
+    <div id="main">
+      <section id="tab-work" class="tab on">
+        <div id="fxrow"></div>
+        <div id="ev" class="hidden">
+          <div class="eh"><div class="ei" id="evi">🚨</div><div class="et"><b id="evt"></b><span id="evx"></span></div></div>
+          <div id="evbar"><div></div></div>
+          <button id="evbtn">TAP</button>
+        </div>
+        <div class="task" id="t-fill">
+          <button class="tbtn" id="b-fill"><span class="ti">💊</span><span class="tm"><b>Fill Orders</b><small id="s-fill"></small></span><span class="badge" id="n-fill">0<i>/12</i></span></button>
+          <div class="qbar"><div id="q-fill"></div></div>
+          <div class="panel hidden" id="p-fill"></div>
+        </div>
+        <div class="task" id="t-phone">
+          <button class="tbtn" id="b-phone"><span class="ti">📞</span><span class="tm"><b>Answer Phone</b><small id="s-phone"></small></span><span class="badge" id="n-phone">0<i>/8</i></span></button>
+          <div class="qbar"><div id="q-phone"></div></div>
+        </div>
+        <div class="task" id="t-check">
+          <button class="tbtn" id="b-check"><span class="ti">🧠</span><span class="tm"><b>Sanity Check</b><small id="s-check"></small></span><span class="badge" id="n-check">100<i>sane</i></span></button>
+          <div class="qbar"><div id="q-check"></div></div>
+          <div class="panel hidden" id="p-check"></div>
+        </div>
+        <button id="coffee" class="hidden"><span id="coffeetxt">☕ Coffee IV Drip</span><i></i></button>
+        <div id="log"></div>
+      </section>
+      <section id="tab-upg" class="tab"><div id="shop"></div></section>
+      <section id="tab-stats" class="tab">
+        <div class="card" id="statshift"></div>
+        <div class="sec">Seniority Perks <small id="senbal"></small></div>
+        <div class="note">Permanent. Earned by clocking out at 7 AM. Management calls this "tenure". It is not pay.</div>
+        <div id="perks"></div>
+        <div class="sec">Career</div>
+        <div class="card" id="statlife"></div>
+        <div class="sec">Settings</div>
+        <div class="card">
+          <button class="smallbtn" id="mute2">🔊 Sound: on</button>
+          <button class="smallbtn red" id="resetbtn">Reset all progress</button>
+          <div class="note">Game auto-saves on this device. Add to Home Screen for full-screen play.</div>
+        </div>
+      </section>
+    </div>
+    <nav id="tabs">
+      <button data-tab="work" class="on"><b>💊</b>Work</button>
+      <button data-tab="upg"><b>🛒</b>Upgrades<span class="dot hidden" id="upgdot"></span></button>
+      <button data-tab="stats"><b>📋</b>Stats</button>
+    </nav>
+  </div>
+
+  <div id="audit" class="ov hidden"><div class="box" id="auditbox"></div></div>
+  <div id="handoff" class="ov hidden"><div class="box" id="handbox"></div></div>
+  <div id="confirm" class="ov hidden"><div class="box">
+    <h2>Reset everything?</h2>
+    <div class="sub">This deletes your level, upgrades and Seniority. Even HR can't undo this.</div>
+    <button class="bigbtn danger" id="confirmyes">Yes, reset</button>
+    <button class="bigbtn ghost" id="confirmno">Cancel</button>
+  </div></div>
+  <div id="toast"></div>
+</div>
+<script>
+(()=>{
+'use strict';
+/* =========================================================
+   NIGHT SHIFT PHARMACY  -  single-file incremental game
+   Tweak numbers in the TUNING block + data tables below.
+   ========================================================= */
+const TUNING={
+  SHIFT_LEN:540,        // real seconds per night shift (7PM -> 7AM)
+  AUDIT_AT:[0.27,0.53,0.80], // shift progress for admin audits
+  ORDER_RATE:0.38,      // orders/sec at shift start
+  CALL_RATE:0.2,       // calls/sec at shift start
+  RAMP_ORDERS:1.5,      // extra multiplier gained by 7AM
+  RAMP_CALLS:1.2,
+  SANITY_DECAY:0.42,    // sanity points/sec
+  SANITY_CHECK_GAIN:35,
+  ORDER_PAY:8, ORDER_XP:6, CALL_PAY:4, CALL_XP:3, CHECK_PAY:4, CHECK_XP:5,
+  SCRIBBLE_PAY:20, SCRIBBLE_XP:18,
+  OFFLINE_CAP:300
+};
+const SAVE_KEY='nightshift_pharmacy_v1';
+const $=id=>document.getElementById(id);
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const ri=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const fmt=n=>'$'+Math.floor(n).toLocaleString('en-US');
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+
+/* ---------------- DATA ---------------- */
+const DRUGS=[ // look-alike / sound-alike groups
+ ['Metoprolol','Metformin','Methotrexate'],
+ ['Hydroxyzine','Hydralazine','Hydrochlorothiazide'],
+ ['Clonidine','Clonazepam','Clomiphene'],
+ ['Celebrex','Celexa','Cerebyx'],
+ ['Zyrtec','Zyprexa','Zantac'],
+ ['Lamivudine','Lamotrigine','Lamisil'],
+ ['Hydromorphone','Morphine','Oxymorphone'],
+ ['Prednisone','Prednisolone','Prilosec'],
+ ['Vinblastine','Vincristine','Vinorelbine'],
+ ['Glipizide','Glyburide','Glimepiride'],
+ ['Carbamazepine','Oxcarbazepine','Carvedilol'],
+ ['Dopamine','Dobutamine','Doxapram'],
+ ['Lorazepam','Alprazolam','Clonazepam'],
+ ['Humalog','Humulin','Novolog'],
+ ['Zolpidem','Zolmitriptan','Zonisamide'],
+ ['Quinidine','Quinine','Clonidine'],
+ ['Tramadol','Trazodone','Toradol'],
+ ['Risperidone','Ropinirole','Reserpine'],
+ ['Sertraline','Selegiline','Cetirizine'],
+ ['Fentanyl','Sufentanil','Alfentanil'],
+ ['Ephedrine','Epinephrine','Epivir'],
+ ['Hydrocodone','Oxycodone','Hydroxyzine'],
+ ['Aripiprazole','Omeprazole','Rabeprazole'],
+ ['Amiodarone','Amantadine','Amlodipine']
+];
+const DOCS=['Dr. Scrawlsworth','Dr. Squiggle','Dr. Hurriedman','Dr. Blotch','Dr. Feldspar','Dr. Illegible','Dr. Q. Quill','Dr. Hasty','Dr. Sharpie'];
+const SIGS=['1 tab PO q6h prn','2 puffs BID','IV push x1 NOW','give ASAP!!','titrate to vibes','q4h prn pain (?)','ok to sub? y/n/idk','hold if sleepy','per protocol (which?)','x3d then stop?? maybe'];
+const NURSES=['ICU Rm 4','4 West','ED Triage','Float Nurse (new)','Peds','Tele','Ortho','Charge RN','L&D','Rapid Response'];
+const CALLS=[
+ 'WHERE. IS. MY. MEDICATION.',
+ 'It\'s been FOUR MINUTES. I have patients. Plural.',
+ 'I\'m calling to ask why I\'m calling again. Where is it?',
+ 'Is it in the tube? It\'s not in the tube. Is it in the tube?',
+ 'I need that STAT. Yes, everything is STAT. I\'m not new.',
+ 'The pharmacy ALWAYS does this. (This is my first night.)',
+ 'Can you just "run it up"? You have legs. I assume.',
+ 'I\'m on hold with you. Why am I on hold with you.',
+ 'Who verified this? I want a name. And a hug.',
+ 'The Pyxis says "no." The Pyxis is lying.',
+ 'The doctor said "give the usual." What is the usual.',
+ 'I\'ve called six times. Sorry, did I wake you?',
+ 'My patient is allergic to everything, can you check? Everything.',
+ 'Hi it\'s me again. You know why.',
+ 'Do you have a minute? (I have 40 minutes of questions.)',
+ 'Why is the IV bag the wrong color? It\'s the correct color? Weird.',
+ 'I\'m not yelling. I\'m "projecting."',
+ 'Quick question: can this go with the other thing? No, THE other thing.',
+ 'The dose looks high. Is that a typo? Oh good. It\'s the dose.',
+ 'You\'re the only pharmacist? ...Of the whole hospital? Cool cool cool.',
+ 'I\'ll just hold. *breathes into phone for 11 minutes*'
+];
+const CHECKS=[
+ {s:'The fridge is for medications. Lunches go in the break room.',i:['I\'ve been talking to the fridge. It says label my yogurt Schedule II.','The Pyxis owes me money and I intend to collect.']},
+ {s:'I\'m taking my 30 minutes. The pharmacy will survive.',i:['I haven\'t blinked since 2 AM and I feel GREAT.','Sleep is just a subscription I cancelled.']},
+ {s:'That order looks wrong. I\'ll call the doctor to clarify.',i:['I\'ll just guess. All drugs are basically the same drug.','The doctor\'s handwriting is a secret code only I can read.']},
+ {s:'Let\'s double-check the dose before it goes out.',i:['Dose is a state of mind.','Math is a social construct. Ship it.']},
+ {s:'It\'s 3 AM and everyone is fine. I\'m going to drink water.',i:['It\'s 3 AM. Time to alphabetize the formulary by vibes.','It\'s 3 AM. I will now fight the label printer.']},
+ {s:'I\'ll eat dinner at a normal time like a human being.',i:['Dinner was a Tums and cold coffee and it was the best meal of my life.','I\'m only allowed to eat things that are blue.']},
+ {s:'The nurse is stressed, not evil. I\'ll be nice.',i:['Nurses are lizards in scrubs. I have a plan.','I answer every call as "Sir Pharmsalot of the Night."']},
+ {s:'Someone should restock the label paper.',i:['The label printer is sentient and it hates me.','I\'m going to name every pill after my ex.']},
+ {s:'The administrators mean well. I\'ll just document it.',i:['I\'m reply-all\'ing "per my last email" to the entire hospital.','I live here now. This is my house.']},
+ {s:'I\'m going to count this twice, then get a second check.',i:['I counted it once, with my heart.','Counting is cheating. I eyeball everything.']},
+ {s:'Let\'s take turns on the phone so nobody loses it.',i:['I unplugged the phone. Peace at last.','I answer the phone as Dracula now. It works.']},
+ {s:'I\'m going home at 7. Day shift can handle this.',i:['7 AM is a rumor started by the day shift.','I\'ve been here since the Obama administration.']},
+ {s:'That\'s an expired vial. Into the waste bin it goes.',i:['It\'s expired but it looks fine. Vibes check passed.','Expiration dates are more like... suggestions.']},
+ {s:'I\'ll put the narcotics away and lock the vault.',i:['I\'m adopting a narcotics vault. His name is Gerald.','The vault is lonely. I left the door open for company.']}
+];
+const COWORKERS=['Dale','Brenda','Marcus','Priya','Gus','Tammy','Jerome','Kowalski','Linh','Big Mike'];
+const PRAISE=['Impressive numbers. We\'re raising your targets as a reward.','Exemplary. Here\'s a bonus and an email saying "thanks!!"','Wow, you\'re actually doing the thing. Pizza party (pending budget).','Great work. I\'ll mention it in my own performance review.'];
+const SCOLD=['"Per my last email..."','"We\'re going to need you to do more with less."','"Let\'s circle back on why the numbers are the numbers."','"Have you tried working smarter?"','"This is a learning opportunity. For you."','"Your pizza party has been rescheduled indefinitely."'];
+const MEH=['"Fine. Fine. It\'s fine." *writes something down*','"Meets expectations. Barely. Don\'t get comfy."','"Let\'s touch base next quarter." *leaves, touching nothing*'];
+const QUIPS=['The vending machine ate a dollar and a little bit of your will to live.','Somewhere, a day-shift pharmacist is sleeping peacefully. Hate that.','The overhead page says something. Nobody can understand it. As tradition demands.','The printer makes a noise it has never made before.','You\'ve been awake for 19 hours and it shows in your handwriting.','Someone left an unlabeled yogurt in the med fridge. Again.','A tube station rattles in the distance. You flinch.','Your coffee has achieved room temperature. Its journey is complete.','The hospital is quiet. Too quiet. Why did you think that.','Your coworker sighs. It echoes. It has layers.','An administrator emails: "Quick ask." It is not quick.','The moon is out. You can\'t see it. Windows are for day shift.'];
+const CHAOS=[
+ {t:'Coworker microwaves fish at 3 AM. Everyone loses focus.',o:0,c:2},
+ {t:'Coworker starts alphabetizing the formulary by color.',o:3,c:0},
+ {t:'Coworker answers the phone: "Pharmacy, this is Satan."',o:0,c:2,e:1},
+ {t:'Coworker is crying quietly in the clean room.',o:2,c:1},
+ {t:'Coworker unplugs the label printer "to let it rest."',o:3,c:1}
+];
+const EVENTS=[
+ {id:'codeblue',w:3,icon:'🚨',title:'CODE BLUE — ICU',text:'Run the crash cart! Tap fast!',need:7,time:7,btn:'PUSH THE CRASH CART',
+  ok(){bonus(70,45,'Code blue: patient saved. Nobody said thank you, but the nurse nodded. That\'s basically a parade.')},
+  fail(){err('Crash cart arrived late.');addCalls(3)}},
+ {id:'stat',w:3,icon:'⚡',title:'STAT ORDER',text:'A doctor wrote "NOW" four times.',need:1,time:6,btn:'SEND IT NOW',
+  ok(){bonus(55,30,'STAT order out the door. It was for a laxative.')},
+  fail(){err('STAT order was not stat.')}},
+ {id:'power',w:2,icon:'💡',title:'POWER FLICKER',text:'The computers are rebooting. Hold the line!',need:3,time:6,btn:'MASH THE POWER BUTTON',
+  ok(){bonus(0,15,'Everything came back. Mostly. Your queue came back too, and it brought friends.')},
+  fail(){S.sh.powerUntil=S.sh.t+12;log('⚡ POWER OUT: robots, techs and headsets are down for 12s.','bad')}},
+ {id:'fridge',w:2,icon:'🧊',title:'FRIDGE ALARM',text:'The med fridge is beeping. The insulin is warming.',need:4,time:7,btn:'MOVE THE INSULIN',
+  ok(){bonus(45,25,'Insulin saved. The fridge is still beeping out of spite.')},
+  fail(){S.sh.cash=Math.max(0,S.sh.cash*0.85);err('Insulin spoiled. $$$ gone.')}},
+ {id:'donut',w:3,nice:1,icon:'🍩',title:'A DONUT APPEARS',text:'Someone left donuts in the break room. Be quick.',need:1,time:9,btn:'EAT THE DONUT',
+  ok(){S.sh.sanity=clamp(S.sh.sanity+25,0,100);gain(0,20,null);log('🍩 Donut consumed. Sanity +25. A rare good thing has happened.','good')},
+  fail(){log('🍩 Someone else ate the donut. You will remember this.','bad')}},
+ {id:'train',w:2,icon:'💻',title:'MANDATORY TRAINING',text:'Admin: "40-minute module, due tonight."',need:5,time:8,btn:'CLICK NEXT',
+  ok(){bonus(20,10,'Training done. You learned nothing. Certificate acquired.')},
+  fail(){S.sh.sanity=clamp(S.sh.sanity-12,0,100);log('💻 Module timed out. Sanity -12. It restarts from slide 1.','bad')}},
+ {id:'printer',w:2,icon:'🖨️',title:'LABEL PRINTER JAM',text:'It is chewing on a label. Slowly.',need:3,time:7,btn:'PERCUSSIVE MAINTENANCE',
+  ok(){bonus(25,12,'Printer unjammed with violence. The old ways work.')},
+  fail(){addOrders(3);log('🖨️ Printer jammed. +3 orders pile up.','bad')}}
+];
+
+const GEAR=[
+ {id:'count',icon:'🧮',name:'Faster Counting',desc:'+25% cash & XP on everything you tap.',base:150,gr:1.55,max:10,req:1},
+ {id:'snack',icon:'🍪',name:'Sanity Snacks',desc:'Coworker sanity decays 12% slower.',base:190,gr:1.6,max:5,req:1},
+ {id:'cart',icon:'🛒',name:'Bigger Med Cart',desc:'+3 order queue room before overflow.',base:220,gr:1.6,max:4,req:2},
+ {id:'tray',icon:'🥣',name:'Pill Counting Tray',desc:'+10% chance a tap fills an extra order.',base:260,gr:1.7,max:5,req:2},
+ {id:'vm',icon:'📼',name:'Sassy Voicemail',desc:'-8% phone call arrivals, +1 voicemail room.',base:320,gr:1.7,max:5,req:2},
+ {id:'scan',icon:'📟',name:'Barcode Scanner',desc:'15% chance to catch a wrong-drug mistake before it ships.',base:460,gr:1.8,max:4,req:3},
+ {id:'robot',icon:'🤖',name:'Auto-Fill Robot',desc:'Fills 0.2 routine orders/sec. Refuses scribbles.',base:600,gr:1.6,max:10,req:3},
+ {id:'head',icon:'🎧',name:'Phone Headset',desc:'Auto-answers 0.12 calls/sec. Hands-free despair.',base:560,gr:1.6,max:8,req:3},
+ {id:'coffee',icon:'☕',name:'Coffee IV Drip',desc:'Unlocks a button: 2x passive, +50% pay for a while.',base:720,gr:1.8,max:5,req:4},
+ {id:'tall',icon:'🔠',name:'Tall-Man Lettering',desc:'metFORMIN vs metOPROLOL. Scribbles get easier.',base:840,gr:2.6,max:2,req:4},
+ {id:'tech',icon:'🧑‍⚕️',name:'Tech Friend',desc:'Hire a tech: 0.1 orders + 0.08 calls/sec. Stalls when sanity hits 0.',base:1040,gr:1.75,max:6,req:5},
+ {id:'binder',icon:'📎',name:'Compliance Binder',desc:'Audits are kinder: more error/backlog slack.',base:960,gr:2.1,max:3,req:5}
+];
+const SKILLS=[
+ {id:'read',icon:'👓',name:'Speed Reading',desc:'+10% XP from everything.',max:5,req:1},
+ {id:'whisper',icon:'🗣️',name:'Nurse Whisperer',desc:'+20% cash & XP from phone calls.',max:5,req:1},
+ {id:'pattern',icon:'🔍',name:'Pattern Recognition',desc:'Scribbles have fewer smudged letters.',max:4,req:2},
+ {id:'prep',icon:'📋',name:'Audit Prep',desc:'+1 error tolerance during audits.',max:3,req:3},
+ {id:'skin',icon:'🦎',name:'Thick Skin',desc:'Tolerate +1 queue overflow before it counts as an error.',max:3,req:3}
+];
+const PERKS=[
+ {id:'night',icon:'🌙',name:'Night Differential',desc:'+8% cash, permanently.',max:10,base:2,gr:1.45},
+ {id:'inst',icon:'🎓',name:'Institutional Knowledge',desc:'+10% XP, permanently.',max:10,base:2,gr:1.45},
+ {id:'stock',icon:'📦',name:'Pre-Stocked Shelves',desc:'Start each night with +$75 per level.',max:5,base:2,gr:1.5},
+ {id:'fridge',icon:'🥡',name:'Break Room Fridge',desc:'Sanity decays 8% slower, permanently.',max:5,base:3,gr:1.5},
+ {id:'mug',icon:'🫖',name:'Favorite Mug',desc:'Coffee IV Drip lasts +6s longer.',max:5,base:3,gr:1.5},
+ {id:'union',icon:'🤝',name:'Union Rep Friend',desc:'+1 audit error tolerance.',max:3,base:4,gr:1.8}
+];
+const byId=(arr,id)=>arr.find(x=>x.id===id);
+
+/* ---------------- STATE ---------------- */
+function freshShift(startCash){
+  const A=TUNING.AUDIT_AT.map(x=>(x+rnd(-0.025,0.025))*TUNING.SHIFT_LEN);
+  return {t:0,cash:startCash||0,earned:0,upg:{},disabled:{},orders:[],calls:[],sanity:100,errors:0,auditErrs:0,
+    accO:0,accC:0,accR:0,accTO:0,accTC:0,accH:0,ovf:{o:0,c:0},
+    coffeeUntil:0,coffeeReady:0,powerUntil:0,nextEvent:40,nextChaos:8,nextQuip:12,auditIdx:0,auditAt:A,audits:[],
+    st:{filled:0,scr:0,scrWrong:0,calls:0,checks:0,counts:0,events:0,eventsFailed:0},oid:0,cid:0};
+}
+function freshState(){
+  return {v:1,phase:'intro',level:1,xp:0,sp:0,skills:{},seniority:0,perks:{},shifts:0,best:'-',sound:true,
+    life:{filled:0,calls:0,checks:0,scr:0,errors:0,audits:0,earned:0,levels:0},sh:null,report:null,savedAt:0,logs:[]};
+}
+let S=freshState();
+const U={paused:false,puzzle:null,check:null,ev:null,tab:'work',auditOpen:false,lastQuote:'',statsT:0};
+
+/* ---------------- DERIVED ---------------- */
+const gl=id=>(S.sh&&S.sh.upg[id])||0;
+const eff=id=>(S.sh.disabled[id]>S.sh.t)?0:gl(id);
+const sk=id=>S.skills[id]||0;
+const pk=id=>S.perks[id]||0;
+const coffeeOn=()=>S.sh.t<S.sh.coffeeUntil;
+const powerOut=()=>S.sh.t<S.sh.powerUntil;
+const prog=()=>clamp(S.sh.t/TUNING.SHIFT_LEN,0,1);
+const payMult=()=>(1+0.25*eff('count'))*(1+0.08*pk('night'))*(coffeeOn()?1.5:1);
+const xpMult=()=>(1+0.1*sk('read'))*(1+0.1*pk('inst'))*(coffeeOn()?1.5:1);
+const passMult=()=>(coffeeOn()?2:1)*(powerOut()?0:1);
+const orderCap=()=>12+3*gl('cart');
+const callCap=()=>8+gl('vm');
+const xpNeed=l=>Math.round(50*Math.pow(1.4,l-1));
+const diff=()=>Math.min(2,1+0.07*S.shifts);
+const lvScale=()=>Math.min(1.6,1+0.04*(S.level-1));
+const orderRate=()=>TUNING.ORDER_RATE*(1+TUNING.RAMP_ORDERS*prog())*lvScale()*diff();
+const callRate=()=>TUNING.CALL_RATE*(1+TUNING.RAMP_CALLS*prog())*lvScale()*diff()*(1-0.08*gl('vm'));
+const robotRate=()=>0.2*eff('robot')*passMult();
+const techOrder=()=>(S.sh.sanity>0?0.1*eff('tech')*passMult():0);
+const techCall=()=>(S.sh.sanity>0?0.08*eff('tech')*passMult():0);
+const headRate=()=>0.12*eff('head')*passMult();
+const errTol=()=>3+gl('binder')+sk('prep')+pk('union');
+const backTol=()=>10+3*gl('binder');
+const sanMin=()=>35-5*gl('binder');
+function sanDecay(){
+  const back=S.sh.orders.length+S.sh.calls.length;
+  return TUNING.SANITY_DECAY*Math.max(0.3,1-0.12*gl('snack'))*Math.max(0.4,1-0.08*pk('fridge'))*(1+0.6*prog())*(1+back/40);
+}
+const coffeeDur=()=>20+6*(gl('coffee')-1)+6*pk('mug');
+const coffeeCd=()=>Math.max(25,50-5*(gl('coffee')-1));
+const cost=(it,l)=>Math.round(it.base*Math.pow(it.gr,l));
+
+/* ---------------- AUDIO / HAPTICS ---------------- */
+let AC=null;
+function ensureAudio(){
+  try{
+    if(!AC){const C=window.AudioContext||window.webkitAudioContext;if(C)AC=new C()}
+    if(AC&&AC.state==='suspended')AC.resume();
+  }catch(e){}
+}
+function blip(f,d,type,vol,slide){
+  if(!S.sound||!AC||AC.state!=='running')return;
+  try{
+    const t=AC.currentTime,o=AC.createOscillator(),g=AC.createGain();
+    o.type=type||'square';o.frequency.setValueAtTime(f,t);
+    if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,f+slide),t+d);
+    g.gain.setValueAtTime(vol||0.04,t);g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+    o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+d+0.02);
+  }catch(e){}
+}
+const SND={
+  tap(){blip(520,.05,'square',.03)},
+  good(){blip(660,.07,'square',.035);setTimeout(()=>blip(990,.1,'square',.035),70)},
+  bad(){blip(200,.25,'sawtooth',.05,-120)},
+  ring(){blip(880,.08,'sine',.04);setTimeout(()=>blip(880,.08,'sine',.04),120)},
+  level(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>blip(f,.12,'triangle',.05),i*90))},
+  alarm(){blip(440,.15,'sawtooth',.05);setTimeout(()=>blip(330,.2,'sawtooth',.05),160)},
+  buy(){blip(400,.06,'square',.04);setTimeout(()=>blip(800,.12,'square',.04),60)}
+};
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms)}catch(e){}}
+
+/* ---------------- UI HELPERS ---------------- */
+function toast(msg,cls){
+  const t=$('toast');t.innerHTML='';
+  const d=document.createElement('div');d.textContent=msg;if(cls)d.className=cls;t.appendChild(d);
+  setTimeout(()=>{if(d.parentNode===t)t.innerHTML=''},2700);
+}
+function floatText(txt,x,y,color){
+  if(x==null||y==null){const r=$('b-fill').getBoundingClientRect();x=r.left+r.width/2;y=r.top+14}
+  const d=document.createElement('div');d.className='float';d.textContent=txt;
+  d.style.left=x+'px';d.style.top=(y-10)+'px';d.style.color=color||'#fff';
+  document.body.appendChild(d);setTimeout(()=>d.remove(),950);
+}
+function log(msg,kind){
+  S.logs.unshift({m:msg,k:kind||''});if(S.logs.length>30)S.logs.length=30;
+  renderLog();
+}
+function renderLog(){
+  $('log').innerHTML=S.logs.slice(0,5).map(l=>'<div'+(l.k==='bad'?' style="color:#ff9aa4"':l.k==='good'?' style="color:#8cf0b6"':'')+'>'+l.m+'</div>').join('');
+}
+function popBadge(id){const b=$(id);b.dataset.pop='1';b.classList.add('pop');setTimeout(()=>{delete b.dataset.pop;b.classList.remove('pop')},110)}
+
+/* ---------------- GAME ACTIONS ---------------- */
+const gameActive=()=>S.phase==='shift'&&!U.paused&&!!S.sh;
+function addOrders(n){for(let i=0;i<n;i++)spawnOrder()}
+function addCalls(n){for(let i=0;i<n;i++)spawnCall()}
+function spawnOrder(forceScr){
+  const h=S.sh;
+  if(h.orders.length>=orderCap()){
+    h.ovf.o++;
+    if(h.ovf.o>=3+sk('skin')&&h.t>=(h.ovfCd||0)){h.ovf.o=0;h.ovfCd=h.t+12;err('Order backlog overflow! Paper everywhere.')}
+    return;
+  }
+  const scr=!!forceScr||Math.random()<Math.min(0.4,0.22+0.01*S.level);
+  const g=ri(0,DRUGS.length-1);
+  h.orders.push({id:h.oid++,scr,g,d:pick(DRUGS[g])});
+}
+function spawnCall(){
+  const h=S.sh;
+  if(h.calls.length>=callCap()){
+    h.ovf.c++;
+    if(h.ovf.c>=3+sk('skin')&&h.t>=(h.ovfCc||0)){h.ovf.c=0;h.ovfCc=h.t+12;h.sanity=clamp(h.sanity-5,0,100);err('Voicemail full. A nurse is walking down here. With intent.')}
+    return;
+  }
+  h.calls.push({id:h.cid++,who:pick(NURSES),line:pick(CALLS)});
+  if(h.calls.length===1)SND.ring();
+}
+function err(msg){
+  const h=S.sh;h.errors++;h.auditErrs++;S.life.errors++;
+  h.cash=Math.max(0,h.cash-Math.min(20+5*S.level,h.cash));
+  if(msg)log('⚠️ '+msg,'bad');
+  const c=$('errchip');c.classList.remove('flash');void c.offsetWidth;c.classList.add('flash');
+  SND.bad();buzz(80);
+}
+function gain(cash,xp,e){
+  const h=S.sh;
+  if(cash){h.cash+=cash;h.earned+=cash;S.life.earned+=cash}
+  if(xp){
+    S.xp+=xp;
+    while(S.xp>=xpNeed(S.level)){S.xp-=xpNeed(S.level);S.level++;S.sp++;S.life.levels++;onLevelUp()}
+  }
+  if(e){
+    const x=e.clientX,y=e.clientY;
+    if(cash)floatText('+'+fmt(cash),x,y,'#46e08a');
+    if(xp)setTimeout(()=>floatText('+'+Math.round(xp)+' XP',x,(y==null?null:y-28),'#7fe9ff'),60);
+  }
+}
+function bonus(cash,xp,msg){
+  gain(cash*payMult(),xp*xpMult(),null);
+  const h=S.sh;h.st.events++;
+  if(cash)floatText('+'+fmt(cash*payMult()),null,null,'#ffc14d');
+  if(msg)log('✅ '+msg,'good');
+  SND.good();
+}
+let buildShopDirty=true;
+function onLevelUp(){
+  const unlocked=GEAR.filter(g=>g.req===S.level).map(g=>g.name);
+  toast('LEVEL UP! Lv '+S.level+' · +1 skill point'+(unlocked.length?' · Unlocked: '+unlocked.join(', '):''));
+  log('⭐ Level '+S.level+'! +1 skill point.'+(unlocked.length?' New gear: '+unlocked.join(', ')+'.':''),'good');
+  SND.level();buzz([30,40,30]);
+}
+function finishOrder(manual,e){
+  const k=manual?1:0.8;
+  S.sh.st.filled++;S.life.filled++;
+  gain(TUNING.ORDER_PAY*payMult()*k,TUNING.ORDER_XP*xpMult()*k,manual?e:null);
+}
+function firstPlain(){return S.sh.orders.findIndex(o=>!o.scr)}
+
+function doFill(e){
+  if(!gameActive()||U.puzzle)return;
+  const h=S.sh;SND.tap();buzz(8);
+  const o=h.orders[0];
+  if(!o){
+    h.st.counts++;
+    gain(TUNING.ORDER_PAY*0.25*payMult(),TUNING.ORDER_XP*0.3*xpMult(),e);
+    if(Math.random()<0.25)log(pick(['📦 Queue empty. You recount the narcs. They\'re all there. They\'re always all there.','📦 Nothing to fill. You straighten the shelf. Then straighten it again.','📦 Empty queue. You alphabetize something out of fear.']));
+    return;
+  }
+  if(o.scr){openPuzzle(o);return}
+  h.orders.shift();finishOrder(true,e);popBadge('n-fill');
+  if(Math.random()<0.1*gl('tray')){
+    const i=firstPlain();
+    if(i>=0){h.orders.splice(i,1);finishOrder(true,e);if(e)floatText('x2!',e.clientX,e.clientY-56,'#ffc14d')}
+  }
+}
+function doPhone(e){
+  if(!gameActive())return;
+  const h=S.sh;SND.tap();buzz(8);
+  const c=h.calls.shift();
+  if(!c){log('📞 Phone is silent. You don\'t trust it.');return}
+  const m=1+0.2*sk('whisper');
+  h.st.calls++;S.life.calls++;
+  gain(TUNING.CALL_PAY*payMult()*m,TUNING.CALL_XP*xpMult()*m,e);
+  U.lastQuote=c.who+': “'+c.line+'”';
+  log('📞 '+c.who+': “'+c.line+'”');
+  popBadge('n-phone');
+}
+function doCheck(e){
+  if(!gameActive()||U.check)return;
+  SND.tap();buzz(8);
+  const set=pick(CHECKS),who=pick(COWORKERS);
+  const opts=shuffle([{t:set.s,ok:true},{t:set.i[0]},{t:set.i[1]}]);
+  U.check={who,opts};
+  const p=$('p-check');
+  p.innerHTML='<div class="q">'+who+' is acting weird. Which of these is the SANE thing to say?</div>'+
+    opts.map((o,i)=>'<button class="opt txt" data-i="'+i+'">“'+o.t+'”</button>').join('');
+  p.classList.remove('hidden');
+  p.querySelectorAll('.opt').forEach(b=>onTap(b,ev=>answerCheck(+b.dataset.i,ev)));
+}
+function answerCheck(i,e){
+  if(!U.check||!gameActive())return;
+  const ch=U.check;U.check=null;
+  $('p-check').classList.add('hidden');
+  const h=S.sh;
+  if(ch.opts[i].ok){
+    const k=0.3+0.7*(1-h.sanity/100); // checking a perfectly sane coworker pays less
+    h.sanity=clamp(h.sanity+TUNING.SANITY_CHECK_GAIN,0,100);
+    h.st.checks++;S.life.checks++;
+    gain(TUNING.CHECK_PAY*payMult()*k*1.6,TUNING.CHECK_XP*xpMult()*k*1.6,e);
+    log('🧠 '+ch.who+' blinks, nods, and rejoins the human race. Sanity restored.','good');SND.good();
+  }else{
+    h.sanity=clamp(h.sanity+8,0,100);
+    log('🧠 '+ch.who+' stares at you. "...Yeah." (Barely helped. Sanity +8.)','bad');SND.bad();
+  }
+}
+/* scribble puzzle */
+function tallMan(names){
+  return names.map(n=>{
+    let best=0;
+    names.forEach(o=>{if(o===n)return;let k=0;while(k<n.length&&k<o.length&&n[k].toLowerCase()===o[k].toLowerCase())k++;best=Math.max(best,k)});
+    return n.slice(0,best).toLowerCase()+'<span class="tm2">'+n.slice(best).toUpperCase()+'</span>';
+  });
+}
+function makeScribble(real,others,p){
+  const L=[...real];
+  let blots=null;
+  for(let tries=0;tries<40;tries++){
+    const b=L.map((c,i)=>i>=3&&Math.random()<p);
+    const vis=L.filter((c,i)=>i>=3&&!b[i]).length;
+    if(L.length-3>=3&&vis<2)continue;
+    let re='',run=false;
+    L.forEach((c,i)=>{if(b[i]){if(!run){re+='.+';run=true}}else{re+=c.toLowerCase().replace(/[^a-z]/g,'.');run=false}});
+    const R=new RegExp('^'+re+'$');
+    if(others.some(o=>R.test(o.toLowerCase())))continue;
+    blots=b;break;
+  }
+  if(!blots)blots=L.map(()=>false);
+  let h='',run=false;
+  L.forEach((c,i)=>{
+    if(blots[i]){
+      if(!run){h+='<span class="blot" style="font-size:'+ri(30,40)+'px;transform:rotate('+ri(-10,10)+'deg)">'+pick(['~','≈','∼','~~'])+'</span>';run=true}
+    }else{
+      run=false;
+      h+='<span style="font-size:'+ri(28,42)+'px;transform:translateY('+ri(-5,5)+'px) rotate('+ri(-15,15)+'deg) skewX('+ri(-14,14)+'deg)">'+(i===0?c.toUpperCase():c)+'</span>';
+    }
+  });
+  return h;
+}
+function openPuzzle(o){
+  const grp=DRUGS[o.g],real=o.d;
+  const others=shuffle(grp.filter(x=>x!==real)).slice(0,2);
+  const choices=shuffle([real,...others]);
+  const lvl=eff('tall');
+  const p=Math.max(0.12,0.5-0.12*lvl-0.06*sk('pattern'));
+  const scr=makeScribble(real,others,p);
+  const labels=lvl>0?tallMan(choices):choices;
+  U.puzzle={o,real,choices};
+  const pn=$('p-fill');
+  pn.innerHTML='<div class="paper"><div class="rx">Rx</div><div class="docn">'+pick(DOCS)+'</div><div class="scr">'+scr+'</div><div class="sig">'+pick(SIGS)+'</div></div>'+
+    '<div class="q">Illegible order! Which drug did the doctor mean?'+(lvl?' (Tall-man lettering helps)':'')+'</div>'+
+    choices.map((c,i)=>'<button class="opt" data-i="'+i+'">'+labels[i]+'</button>').join('');
+  pn.classList.remove('hidden');
+  pn.querySelectorAll('.opt').forEach(b=>onTap(b,ev=>answerPuzzle(+b.dataset.i,ev)));
+  setTimeout(()=>{try{pn.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}},30);
+}
+function answerPuzzle(i,e){
+  if(!U.puzzle||!gameActive())return;
+  const pz=U.puzzle;U.puzzle=null;
+  $('p-fill').classList.add('hidden');
+  const h=S.sh;
+  const idx=h.orders.findIndex(o=>o.id===pz.o.id);
+  if(pz.choices[i]===pz.real){
+    if(idx>=0)h.orders.splice(idx,1);
+    h.st.scr++;S.life.scr++;h.st.filled++;S.life.filled++;
+    gain(TUNING.SCRIBBLE_PAY*payMult(),TUNING.SCRIBBLE_XP*xpMult(),e);
+    log('🖋️ Decoded: '+pz.real+'. '+pick(DOCS)+' owes you a beer (they will not pay).','good');SND.good();
+  }else{
+    h.st.scrWrong++;
+    if(Math.random()<0.15*eff('scan')){
+      log('📟 Scanner BEEPED: wrong drug! Caught it. The scribble goes back in the pile.','good');SND.good();
+    }else{
+      if(idx>=0)h.orders.splice(idx,1);
+      h.sanity=clamp(h.sanity-3,0,100);
+      err('Wrong drug: that was '+pz.real+', not '+pz.choices[i]+'. The patient is "fine" (pending).');
+    }
+  }
+}
+function doCoffee(){
+  if(!gameActive()||gl('coffee')<1)return;
+  const h=S.sh;
+  if(h.t<h.coffeeReady||coffeeOn())return;
+  h.coffeeUntil=h.t+coffeeDur();h.coffeeReady=h.t+coffeeDur()+coffeeCd();
+  log('☕ IV drip engaged. You can taste colors. Everything is faster for '+Math.round(coffeeDur())+'s.','good');
+  SND.good();buzz(40);
+}
+
+/* ---------------- EVENTS ---------------- */
+function spawnEvent(){
+  const tot=EVENTS.reduce((a,e)=>a+e.w,0);let r=Math.random()*tot,def=EVENTS[0];
+  for(const e of EVENTS){r-=e.w;if(r<=0){def=e;break}}
+  U.ev={def,taps:0,left:def.time};
+  const el=$('ev');el.classList.remove('hidden');el.classList.toggle('nice',!!def.nice);
+  $('evi').textContent=def.icon;$('evt').textContent=def.title;$('evx').textContent=def.text;
+  updateEvent();SND.alarm();buzz([60,40,60]);
+}
+function updateEvent(){
+  if(!U.ev)return;
+  const e=U.ev;
+  $('evbtn').textContent=e.def.btn+(e.def.need>1?'  ('+e.taps+'/'+e.def.need+')':'');
+  $('evbar').firstElementChild.style.width=(100*e.left/e.def.time)+'%';
+}
+function tapEvent(){
+  if(!U.ev||!gameActive())return;
+  U.ev.taps++;SND.tap();buzz(8);
+  if(U.ev.taps>=U.ev.def.need){const d=U.ev.def;U.ev=null;$('ev').classList.add('hidden');d.ok()}
+  else updateEvent();
+}
+function eventTimeout(){
+  const d=U.ev.def;U.ev=null;$('ev').classList.add('hidden');
+  S.sh.st.eventsFailed++;d.fail();
+}
+function chaos(){
+  const c=pick(CHAOS);
+  addOrders(c.o);addCalls(c.c);if(c.e)err();
+  toast('CHAOS: '+c.t,'bad');log('🌀 '+c.t,'bad');SND.alarm();
+  document.body.classList.add('shake');setTimeout(()=>document.body.classList.remove('shake'),400);
+}
+
+/* ---------------- AUDIT ---------------- */
+function runAudit(){
+  const h=S.sh;
+  const back=h.orders.length+h.calls.length;
+  const checks=[
+    {l:'Errors this period',v:h.auditErrs,need:'≤ '+errTol(),ok:h.auditErrs<=errTol()},
+    {l:'Backlog (orders + calls)',v:back,need:'≤ '+backTol(),ok:back<=backTol()},
+    {l:'Coworker sanity',v:Math.round(h.sanity)+'%',need:'≥ '+sanMin()+'%',ok:h.sanity>=sanMin()}
+  ];
+  const passed=checks.filter(c=>c.ok).length;
+  let out,cls,quote;
+  if(passed===3){
+    const b=Math.round((100+22*S.level)*(1+0.1*pk('night')));
+    h.cash+=b;h.earned+=b;S.life.earned+=b;gain(0,40+8*S.level,null);
+    out='EXEMPLARY! +'+fmt(b)+' bonus';cls='good';quote='“'+pick(PRAISE)+'”';
+  }else if(passed===2){
+    out='"Meets expectations."';cls='meh';quote=pick(MEH);
+  }else if(passed===1){
+    const lost=Math.floor(h.cash*0.15);h.cash-=lost;h.sanity=clamp(h.sanity-10,0,100);
+    out='Written up: −'+fmt(lost)+' and −10 sanity for everyone';cls='bad';quote=pick(SCOLD);
+  }else{
+    const lost=Math.floor(h.cash*0.35);h.cash-=lost;h.sanity=clamp(h.sanity-25,0,100);
+    const owned=GEAR.filter(g=>gl(g.id)>0);
+    let dis='';
+    if(owned.length){const g=pick(owned);h.disabled[g.id]=h.t+45;dis=' "'+g.name+'" is disabled for 45s ("budget review").'}
+    out='DISCIPLINARY: −'+fmt(lost)+', −25 sanity.'+dis;cls='bad';quote=pick(SCOLD)+' '+pick(SCOLD);
+  }
+  h.audits.push({passed,cls});S.life.audits++;
+  h.auditErrs=0;
+  U.paused=true;U.auditOpen=true;
+  SND.alarm();buzz([100,50,100,50,100]);
+  const box=$('auditbox');
+  box.innerHTML='<div class="siren">🕴️</div><h2>ADMINISTRATOR ARRIVES</h2><div class="sub">Clipboard detected. Everyone act natural.</div>';
+  $('audit').classList.remove('hidden');
+  setTimeout(()=>{
+    if(!U.auditOpen)return;
+    box.innerHTML='<h2>AUDIT RESULTS</h2>'+
+      checks.map(c=>'<div class="ck fadein"><span>'+(c.ok?'✅':'❌')+' '+c.l+'</span><span>'+c.v+' <small style="color:var(--dim)">('+c.need+')</small></span></div>').join('')+
+      '<div class="quote fadein">'+quote+'</div><div class="outcome '+cls+' fadein">'+out+'</div>'+
+      '<button class="bigbtn" id="auditok" style="visibility:hidden">'+(passed<2?'Smile and nod':'Back to work')+'</button>';
+    const b=$('auditok');
+    setTimeout(()=>{b.style.visibility='visible'},700);
+    b.addEventListener('click',()=>{
+      U.auditOpen=false;U.paused=false;$('audit').classList.add('hidden');
+      log('🕴️ Audit: '+(passed===3?'exemplary':passed===2?'meets expectations':'written up')+'.',passed===3?'good':passed<2?'bad':'');
+      save();
+    });
+    if(passed===3)SND.good();else if(passed<2)SND.bad();
+  },1600);
+}
+
+/* ---------------- SHIFT END / PRESTIGE ---------------- */
+function grade(score){return score>=85?'S':score>=70?'A':score>=55?'B':score>=38?'C':'D'}
+function endShift(){
+  const h=S.sh;
+  S.phase='handoff';U.puzzle=null;U.check=null;U.ev=null;
+  ['p-fill','p-check','ev'].forEach(i=>$(i).classList.add('hidden'));
+  const ap=h.audits.reduce((a,x)=>a+[0,5,12,20][x.passed],0);
+  const score=Math.round(clamp(40-h.errors*0.8,0,40)+ap);
+  const g=grade(score);
+  const sen={S:5,A:4,B:3,C:2,D:1}[g]+Math.floor(S.level/5);
+  S.seniority+=sen;S.shifts++;
+  const order='DCBAS';if(S.best==='-'||order.indexOf(g)>order.indexOf(S.best))S.best=g;
+  S.report={g,score,sen,filled:h.st.filled,scr:h.st.scr,scrWrong:h.st.scrWrong,calls:h.st.calls,checks:h.st.checks,errors:h.errors,
+    earned:h.earned,audits:h.audits.map(a=>a.passed),events:h.st.events,left:h.orders.length+h.calls.length,level:S.level};
+  save();showHandoff();SND.level();
+}
+function showHandoff(){
+  const r=S.report;if(!r)return;
+  const au=r.audits.map(p=>p===3?'✅':p===2?'➖':'❌').join(' ')||'—';
+  const lines=['“Rough night?” the day pharmacist asks, already taking your chair.','Sunlight. You remember it fondly.','Day shift arrives with a smoothie. You hate them softly.','Your car is somewhere. Probably.'];
+  $('handbox').innerHTML='<h2>🌅 7:00 AM — SHIFT HANDOFF</h2><div class="sub">'+pick(lines)+'</div>'+
+   '<div class="grade">'+r.g+'</div><div class="sub">Shift grade · score '+r.score+'/100</div>'+
+   '<div class="card" style="margin:0">'+
+   '<div class="kv"><span>💊 Orders filled</span><b>'+r.filled+'</b></div>'+
+   '<div class="kv"><span>🖋️ Scribbles decoded (wrong)</span><b>'+r.scr+' ('+r.scrWrong+')</b></div>'+
+   '<div class="kv"><span>📞 Calls answered</span><b>'+r.calls+'</b></div>'+
+   '<div class="kv"><span>🧠 Sanity checks</span><b>'+r.checks+'</b></div>'+
+   '<div class="kv"><span>⚠️ Errors</span><b>'+r.errors+'</b></div>'+
+   '<div class="kv"><span>🕴️ Audits</span><b>'+au+'</b></div>'+
+   '<div class="kv"><span>💵 Earned</span><b>'+fmt(r.earned)+'</b></div>'+
+   '<div class="kv"><span>📥 Left for day shift</span><b>'+r.left+'</b></div></div>'+
+   '<div class="outcome good">+'+r.sen+' Seniority earned</div>'+
+   '<div class="sec" style="margin:0">Seniority Perks <small id="hsen"></small></div><div id="hperks"></div>'+
+   '<div class="note" style="margin:0">Next night: gear resets. Your level, skills &amp; perks stay. The hospital gets a little busier.</div>'+
+   '<button class="bigbtn" id="clockout" style="visibility:hidden">Clock out &amp; start a new night</button>';
+  $('handoff').classList.remove('hidden');
+  renderPerks();
+  setTimeout(()=>{const b=$('clockout');if(b){b.style.visibility='visible';b.onclick=newNight}},800);
+}
+function newNight(){
+  $('handoff').classList.add('hidden');
+  S.phase='shift';S.report=null;
+  S.sh=freshShift(75*pk('stock'));
+  U.paused=false;U.puzzle=null;U.check=null;U.ev=null;
+  ['p-fill','p-check','ev'].forEach(i=>$(i).classList.add('hidden'));
+  initShiftQueues();
+  log('🌙 Clocked in for night #'+(S.shifts+1)+'. Gear reset. Coffee: pending.');
+  buildShopDirty=true;lastCache={};renderAll();save();
+}
+function initShiftQueues(){
+  const h=S.sh;
+  h.orders=[];h.calls=[];
+  spawnOrder();spawnOrder(true);spawnOrder();spawnCall();
+}
+
+/* ---------------- TICK ---------------- */
+function tick(dt){
+  if(!gameActive())return;
+  const h=S.sh;h.t+=dt;
+  h.accO+=orderRate()*dt*rnd(0.5,1.5);while(h.accO>=1){h.accO--;spawnOrder()}
+  h.accC+=callRate()*dt*rnd(0.5,1.5);while(h.accC>=1){h.accC--;spawnCall()}
+  h.accR+=robotRate()*dt;while(h.accR>=1){h.accR--;const i=firstPlain();if(i>=0){h.orders.splice(i,1);finishOrder(false)}}
+  h.accTO+=techOrder()*dt;while(h.accTO>=1){h.accTO--;const i=firstPlain();if(i>=0){h.orders.splice(i,1);finishOrder(false)}}
+  h.accTC+=techCall()*dt;h.accH+=headRate()*dt;
+  while(h.accTC>=1){h.accTC--;autoCall()}
+  while(h.accH>=1){h.accH--;autoCall()}
+  h.sanity=clamp(h.sanity-sanDecay()*dt,0,100);
+  if(h.sanity<=0){
+    h.nextChaos-=dt;
+    if(h.nextChaos<=0){h.nextChaos=rnd(9,14);chaos()}
+  }else h.nextChaos=Math.max(h.nextChaos,6);
+  if(U.ev){
+    U.ev.left-=dt;
+    if(U.ev.left<=0)eventTimeout();else updateEvent();
+  }else{
+    h.nextEvent-=dt;
+    if(h.nextEvent<=0){h.nextEvent=rnd(28,48);spawnEvent()}
+  }
+  h.nextQuip-=dt;if(h.nextQuip<=0){h.nextQuip=rnd(18,30);log('💭 '+pick(QUIPS))}
+  if(h.auditIdx<h.auditAt.length&&h.t>=h.auditAt[h.auditIdx]){h.auditIdx++;runAudit();return}
+  if(h.t>=TUNING.SHIFT_LEN)endShift();
+}
+function autoCall(){
+  const h=S.sh;if(!h.calls.length)return;
+  h.calls.shift();h.st.calls++;S.life.calls++;
+  gain(TUNING.CALL_PAY*payMult()*0.8,TUNING.CALL_XP*xpMult()*0.8,null);
+}
+
+/* ---------------- RENDER ---------------- */
+let lastCache={};
+function setText(id,v){if(lastCache[id]!==v){lastCache[id]=v;$(id).textContent=v}}
+function renderHUD(){
+  const h=S.sh;
+  const m=19*60+prog()*720;const hh=Math.floor(m/60)%24,mm=Math.floor(m%60);
+  const ck=(hh%12||12)+':'+String(mm).padStart(2,'0')+'<small>'+(hh>=12?'PM':'AM')+'</small>';
+  if(lastCache.clock!==ck){lastCache.clock=ck;$('clock').innerHTML=ck}
+  $('shiftbar').firstElementChild.style.width=(prog()*100)+'%';
+  const need=xpNeed(S.level);
+  setText('lvl','Lv '+S.level);
+  $('xpbar').firstElementChild.style.width=(100*S.xp/need)+'%';
+  $('xpbar').lastElementChild.textContent=Math.floor(S.xp)+' / '+need+' XP';
+  setText('cash',fmt(h.cash));
+  setText('errn',h.errors);
+  setText('spn',S.sp+' SP');
+  const san=Math.round(h.sanity);
+  setText('sann',san);
+  $('sanbar').firstElementChild.style.width=san+'%';
+  const sc=$('sanchip');sc.classList.toggle('low',san<=25);sc.classList.toggle('mid',san>25&&san<=55);
+  document.body.classList.toggle('coffee',coffeeOn());
+  document.body.classList.toggle('blackout',powerOut());
+}
+const qClass=(n,cap)=>{const f=n/cap;return f>=0.8?'hot':f>=0.5?'warn':''};
+const qColor=(n,cap)=>{const f=n/cap;return f>=0.8?'var(--red)':f>=0.5?'var(--amber)':'var(--green)'};
+function setBadge(id,n,cap){
+  const b=$(id);
+  b.firstChild.nodeValue=n;b.lastChild.textContent='/'+cap;
+  const c='badge '+qClass(n,cap);
+  b.className=c+(b.dataset.pop?' pop':'');
+}
+function renderWork(){
+  const h=S.sh;
+  const oc=orderCap(),cc=callCap();
+  setBadge('n-fill',h.orders.length,oc);setBadge('n-phone',h.calls.length,cc);
+  const q1=$('q-fill'),q2=$('q-phone');
+  q1.style.width=Math.min(100,100*h.orders.length/oc)+'%';q1.style.background=qColor(h.orders.length,oc);
+  q2.style.width=Math.min(100,100*h.calls.length/cc)+'%';q2.style.background=qColor(h.calls.length,cc);
+  const o=h.orders[0];
+  const scrN=h.orders.filter(x=>x.scr).length;
+  setText('s-fill',U.puzzle?'Decode the scribble below ↓':!o?'Queue empty. Recount the narcs for pocket change.':o.scr?'🖋️ Next up: ILLEGIBLE scribble!'+(scrN>1?' ('+scrN+' in pile)':''):'Next: routine order'+(scrN?' · '+scrN+' scribble'+(scrN>1?'s':'')+' waiting':''));
+  setText('s-phone',h.calls.length?(h.calls[0].who+': “'+h.calls[0].line+'”'):(U.lastQuote?'Last: '+U.lastQuote:'Silence. Suspicious.'));
+  $('t-phone').classList.toggle('ring',h.calls.length>0);
+  const san=h.sanity;
+  setText('s-check',U.check?'Pick the sane statement below ↓':san<=0?'FERAL. Tech output stalled. Chaos incoming.':san<25?'Twitching. Muttering about the Pyxis.':san<55?'Getting weird. Humming at the vault.':'Stable-ish. For now.');
+  const nc=$('n-check');nc.firstChild.nodeValue=Math.round(san);
+  nc.className='badge '+(san<=25?'hot':san<=55?'warn':'');
+  const qc=$('q-check');qc.style.width=san+'%';qc.style.background=san<=25?'var(--red)':san<=55?'var(--amber)':'var(--green)';
+  const fx=[];
+  if(coffeeOn())fx.push('<span class="fx good">☕ IV Drip '+Math.ceil(h.coffeeUntil-h.t)+'s</span>');
+  if(powerOut())fx.push('<span class="fx bad">⚡ POWER OUT '+Math.ceil(h.powerUntil-h.t)+'s</span>');
+  Object.keys(h.disabled).forEach(id=>{if(h.disabled[id]>h.t){const g=byId(GEAR,id);if(g)fx.push('<span class="fx bad">⛔ '+g.icon+' disabled '+Math.ceil(h.disabled[id]-h.t)+'s</span>')}});
+  if(san<=0)fx.push('<span class="fx bad">🌀 Coworker feral</span>');
+  const fxs=fx.join('');
+  if(lastCache.fx!==fxs){lastCache.fx=fxs;$('fxrow').innerHTML=fxs}
+  const cb=$('coffee');
+  if(gl('coffee')>0){
+    cb.classList.remove('hidden');
+    const on=coffeeOn(),cd=h.t<h.coffeeReady&&!on;
+    cb.classList.toggle('on',on);cb.classList.toggle('cd',cd);
+    setText('coffeetxt',on?'☕ DRIP ACTIVE · '+Math.ceil(h.coffeeUntil-h.t)+'s':cd?'☕ Recharging… '+Math.ceil(h.coffeeReady-h.t)+'s':'☕ TAP: Coffee IV Drip ('+Math.round(coffeeDur())+'s)');
+    cb.lastElementChild.style.width=on?(100*(h.coffeeUntil-h.t)/coffeeDur())+'%':cd?(100*(h.coffeeReady-h.t)/coffeeCd())+'%':'0';
+  }else cb.classList.add('hidden');
+}
+function itemNode(it,kind){
+  const d=document.createElement('div');d.className='item';d.dataset.id=it.id;d.dataset.kind=kind;
+  d.innerHTML='<div class="ic">'+it.icon+'</div><div class="im"><b>'+it.name+'<em class="lv"></em></b><p>'+it.desc+'</p><p class="tg"></p></div><button class="buy"></button>';
+  d.querySelector('.buy').addEventListener('click',()=>buy(it.id,kind));
+  return d;
+}
+function buildShop(){
+  const sh=$('shop');sh.innerHTML='';
+  const a=document.createElement('div');a.className='sec';a.innerHTML='Gear <small>cash · resets each night</small>';sh.appendChild(a);
+  GEAR.forEach(g=>sh.appendChild(itemNode(g,'gear')));
+  const b=document.createElement('div');b.className='sec';b.innerHTML='Skills <small id="spbal"></small>';sh.appendChild(b);
+  SKILLS.forEach(g=>sh.appendChild(itemNode(g,'skill')));
+  const n=document.createElement('div');n.className='note';n.textContent='Skills cost skill points (1 per level-up) and are permanent.';sh.appendChild(n);
+  buildShopDirty=false;
+}
+function itemInfo(it,kind){
+  const l=kind==='gear'?gl(it.id):sk(it.id);
+  const maxed=l>=it.max;
+  const c=kind==='gear'?cost(it,l):l+1;
+  const locked=kind==='gear'&&S.level<it.req||kind==='skill'&&S.level<it.req;
+  const afford=kind==='gear'?S.sh.cash>=c:S.sp>=c;
+  return {l,maxed,c,locked,afford,can:!maxed&&!locked&&afford};
+}
+function updateShop(){
+  if(buildShopDirty)buildShop();
+  $('shop').querySelectorAll('.item').forEach(n=>{
+    const kind=n.dataset.kind,it=byId(kind==='gear'?GEAR:SKILLS,n.dataset.id);
+    const i=itemInfo(it,kind);
+    n.classList.toggle('can',i.can);n.classList.toggle('lock',i.locked);n.classList.toggle('max',i.maxed);
+    const dis=kind==='gear'&&S.sh.disabled[it.id]>S.sh.t;
+    n.classList.toggle('dis',dis);
+    n.querySelector('.lv').textContent='Lv '+i.l+'/'+it.max;
+    n.querySelector('.tg').textContent=dis?'⛔ Disabled by management for '+Math.ceil(S.sh.disabled[it.id]-S.sh.t)+'s':'';
+    const bt=n.querySelector('.buy');
+    const t=i.locked?'🔒 Lv '+it.req:i.maxed?'MAX':kind==='gear'?'Buy<br>'+fmt(i.c):'Learn<br>'+i.c+' SP';
+    if(bt.dataset.t!==t){bt.dataset.t=t;bt.innerHTML=t}
+  });
+  const sb=$('spbal');if(sb)sb.textContent='⭐ '+S.sp+' skill point'+(S.sp===1?'':'s');
+}
+function buy(id,kind){
+  if(!gameActive())return;
+  const it=byId(kind==='gear'?GEAR:SKILLS,id);const i=itemInfo(it,kind);
+  if(!i.can){buzz(20);return}
+  if(kind==='gear'){S.sh.cash-=i.c;S.sh.upg[id]=i.l+1}else{S.sp-=i.c;S.skills[id]=i.l+1}
+  SND.buy();buzz(15);
+  log('🛒 '+it.name+' → Lv '+(i.l+1)+'.','good');
+  renderHUD();renderWork();updateShop();
+  const b=document.querySelector('.item[data-id="'+id+'"] .buy');if(b){b.classList.remove('bump');void b.offsetWidth;b.classList.add('bump')}
+  save();
+}
+const perkCost=(p,l)=>Math.ceil(p.base*Math.pow(p.gr,l));
+function renderPerks(){
+  const html=PERKS.map(p=>{
+    const l=pk(p.id),maxed=l>=p.max,c=perkCost(p,l);
+    const can=!maxed&&S.seniority>=c;
+    return '<div class="item'+(can?' can':'')+(maxed?' max':'')+'"><div class="ic">'+p.icon+'</div><div class="im"><b>'+p.name+'<em>Lv '+l+'/'+p.max+'</em></b><p>'+p.desc+'</p></div><button class="buy" data-perk="'+p.id+'">'+(maxed?'MAX':c+' 🎖️')+'</button></div>';
+  }).join('');
+  ['perks','hperks'].forEach(id=>{
+    const el=$(id);if(!el)return;
+    el.innerHTML=html;
+    el.querySelectorAll('[data-perk]').forEach(b=>b.addEventListener('click',()=>buyPerk(b.dataset.perk)));
+  });
+  ['senbal','hsen'].forEach(id=>{const e=$(id);if(e)e.textContent='🎖️ '+S.seniority+' Seniority'});
+}
+function buyPerk(id){
+  const p=byId(PERKS,id),l=pk(id),c=perkCost(p,l);
+  if(l>=p.max||S.seniority<c){buzz(20);return}
+  S.seniority-=c;S.perks[id]=l+1;SND.buy();buzz(15);renderPerks();save();
+}
+function renderStats(){
+  const h=S.sh;if(!h)return;
+  const rows=[['Night #',S.shifts+1],['Orders filled',h.st.filled],['Scribbles decoded',h.st.scr+' ('+h.st.scrWrong+' wrong)'],['Calls answered',h.st.calls],['Sanity checks',h.st.checks],['Events handled',h.st.events+' / '+(h.st.events+h.st.eventsFailed)],['Errors',h.errors],['Audits passed',h.audits.filter(a=>a.passed===3).length+' / '+h.audits.length],['Earned this night',fmt(h.earned)],
+   ['Orders arriving',orderRate().toFixed(2)+'/s'],['Calls arriving',callRate().toFixed(2)+'/s'],['Auto orders',(robotRate()+techOrder()).toFixed(2)+'/s'],['Auto calls',(headRate()+techCall()).toFixed(2)+'/s'],['Pay multiplier','x'+payMult().toFixed(2)],['XP multiplier','x'+xpMult().toFixed(2)],['Audit limits','≤'+errTol()+' errors · ≤'+backTol()+' backlog · ≥'+sanMin()+'% sanity']];
+  $('statshift').innerHTML='<div class="sec" style="margin-top:0">This night</div>'+rows.map(r=>'<div class="kv"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>').join('');
+  const L=S.life;
+  $('statlife').innerHTML=[['Nights worked',S.shifts],['Best grade',S.best],['Level',S.level],['Orders filled',L.filled],['Scribbles decoded',L.scr],['Calls answered',L.calls],['Sanity checks',L.checks],['Errors made',L.errors],['Audits survived',L.audits],['Lifetime earnings',fmt(L.earned)]].map(r=>'<div class="kv"><span>'+r[0]+'</span><b>'+r[1]+'</b></div>').join('');
+}
+function renderTabsDot(){
+  if(!S.sh)return;
+  const any=SKILLS.some(s=>itemInfo(s,'skill').can)||GEAR.some(g=>itemInfo(g,'gear').can);
+  $('upgdot').classList.toggle('hidden',!any||U.tab==='upg');
+}
+function renderAll(){
+  if(!S.sh)return;
+  renderHUD();renderWork();updateShop();renderStats();renderTabsDot();renderLog();renderPerks();
+  $('mute').textContent=S.sound?'🔊':'🔇';$('mute2').textContent=S.sound?'🔊 Sound: on':'🔇 Sound: off';
+}
+function setTab(t){
+  U.tab=t;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===t));
+  document.querySelectorAll('.tab').forEach(s=>s.classList.toggle('on',s.id==='tab-'+t));
+  if(S.sh){if(t==='upg')updateShop();if(t==='stats'){renderStats();renderPerks()}renderTabsDot()}
+  SND.tap();
+}
+
+/* ---------------- SAVE / LOAD ---------------- */
+function save(){
+  try{S.savedAt=Date.now();localStorage.setItem(SAVE_KEY,JSON.stringify(S))}catch(e){}
+}
+function load(){
+  let raw=null;
+  try{raw=localStorage.getItem(SAVE_KEY)}catch(e){}
+  if(!raw)return false;
+  try{
+    const p=JSON.parse(raw);
+    const f=freshState();
+    S=Object.assign(f,p);
+    S.life=Object.assign(f.life,p.life||{});
+    if(!Array.isArray(S.logs))S.logs=[];
+    if(p.sh){const fs=freshShift(0);S.sh=Object.assign(fs,p.sh);S.sh.st=Object.assign(fs.st,p.sh.st||{});S.sh.ovf=Object.assign(fs.ovf,p.sh.ovf||{})}
+    return true;
+  }catch(e){S=freshState();return false}
+}
+function offlineReward(){
+  if(S.phase!=='shift'||!S.sh||!S.savedAt)return;
+  const away=Math.min(TUNING.OFFLINE_CAP,(Date.now()-S.savedAt)/1000);
+  if(away<30)return;
+  const oRate=0.2*gl('robot')+0.1*gl('tech'),cRate=0.12*gl('head')+0.08*gl('tech');
+  const cash=0.4*away*(oRate*TUNING.ORDER_PAY*0.8+cRate*TUNING.CALL_PAY*0.8)*(1+0.25*gl('count'));
+  const xp=0.4*away*(oRate*TUNING.ORDER_XP*0.8+cRate*TUNING.CALL_XP*0.8);
+  if(cash>=1){gain(cash,xp,null);log('🌙 While you were away ('+Math.round(away)+'s) your helpers earned '+fmt(cash)+'. The pharmacy is "fine".','good')}
+}
+
+/* ---------------- WIRING ---------------- */
+function onTap(el,fn){el.addEventListener('pointerdown',e=>{if(e.button>0)return;e.preventDefault();fn(e)})}
+function startGame(){
+  ensureAudio();
+  if(S.phase==='intro'){
+    S.phase='shift';S.sh=freshShift(75*pk('stock'));initShiftQueues();
+    log('🌙 7:00 PM. You clock in. The phone is already ringing.');
+  }
+  $('intro').classList.add('hidden');$('game').classList.remove('hidden');
+  if(S.phase==='handoff')showHandoff();
+  buildShopDirty=true;renderAll();save();
+}
+function showIntro(){
+  const has=S.phase!=='intro';
+  $('startbtn').textContent=has?'Continue Shift':'Start Shift';
+  $('introsub').textContent=has?'Level '+S.level+' · Night #'+(S.shifts+1)+(S.seniority?' · 🎖️ '+S.seniority+' Seniority':''):'Best played while slightly under-caffeinated.';
+  $('intro').classList.remove('hidden');$('game').classList.add('hidden');
+}
+function init(){
+  const had=load();
+  if(had)offlineReward();
+  document.addEventListener('gesturestart',e=>e.preventDefault());
+  document.addEventListener('dblclick',e=>e.preventDefault());
+  ['touchend','pointerup','click'].forEach(ev=>document.addEventListener(ev,ensureAudio,{passive:true}));
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&S.phase!=='intro')save()});
+  window.addEventListener('pagehide',()=>{if(S.phase!=='intro')save()});
+  $('startbtn').addEventListener('click',startGame);
+  onTap($('b-fill'),doFill);onTap($('b-phone'),doPhone);onTap($('b-check'),doCheck);
+  onTap($('evbtn'),tapEvent);onTap($('coffee'),doCoffee);
+  document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+  const toggleSound=()=>{S.sound=!S.sound;ensureAudio();$('mute').textContent=S.sound?'🔊':'🔇';$('mute2').textContent=S.sound?'🔊 Sound: on':'🔇 Sound: off';if(S.sound)SND.tap();save()};
+  $('mute').addEventListener('click',toggleSound);$('mute2').addEventListener('click',toggleSound);
+  $('resetbtn').addEventListener('click',()=>$('confirm').classList.remove('hidden'));
+  $('confirmno').addEventListener('click',()=>$('confirm').classList.add('hidden'));
+  $('confirmyes').addEventListener('click',()=>{
+    try{localStorage.removeItem(SAVE_KEY)}catch(e){}
+    S=freshState();U.puzzle=null;U.check=null;U.ev=null;U.paused=false;U.auditOpen=false;lastCache={};
+    ['p-fill','p-check','ev','confirm','audit','handoff'].forEach(i=>$(i).classList.add('hidden'));
+    document.body.classList.remove('coffee','blackout');
+    setTab('work');showIntro();
+  });
+  TUNING.AUDIT_AT.forEach(a=>{const m=document.createElement('div');m.className='audmark';m.style.left=(a*100)+'%';$('shiftbar').appendChild(m)});
+  showIntro();
+  let last=performance.now(),saveT=0;
+  setInterval(()=>{
+    const now=performance.now();const dt=Math.min(0.25,(now-last)/1000);last=now;
+    if(document.hidden)return;
+    if(S.sh&&!$('game').classList.contains('hidden')){
+      tick(dt);
+      if(S.sh&&S.phase==='shift'){
+        renderHUD();renderWork();
+        if(U.tab==='upg')updateShop();
+        if(U.tab==='stats'){U.statsT+=dt;if(U.statsT>0.8){U.statsT=0;renderStats()}}
+        renderTabsDot();
+      }
+    }
+    saveT+=dt;if(saveT>=5){saveT=0;if(S.phase!=='intro')save()}
+  },100);
+}
+/* debug / test hooks */
+window.__game={
+  get S(){return S},U,TUNING,
+  step(sec){const n=Math.round(sec/0.1);for(let i=0;i<n&&gameActive();i++)tick(0.1);if(S.sh&&S.phase==='shift'){renderHUD();renderWork();updateShop()}},
+  fill:doFill,phone:doPhone,check:doCheck,buy,save,renderAll,setTab,tapEvent,coffee:doCoffee,
+  puzzleAnswer(){if(!U.puzzle)return false;answerPuzzle(U.puzzle.choices.indexOf(U.puzzle.real),null);return true},
+  checkAnswer(){if(!U.check)return false;answerCheck(U.check.opts.findIndex(o=>o.ok),null);return true},
+  cash(n){S.sh.cash+=n;renderHUD()},gain,gameActive
+};
+init();
+})();
+</script>
+</body>
+</html>
