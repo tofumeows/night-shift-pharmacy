@@ -77,6 +77,7 @@ button{font:inherit;color:inherit;border:0;background:none;padding:0;margin:0;cu
 #ev{border-radius:18px;padding:12px;margin-bottom:10px;background:linear-gradient(180deg,#3a1018,#240b11);border:2px solid var(--red);animation:evpulse 1s infinite}
 #ev.nice{background:linear-gradient(180deg,#0f3a2b,#0b261e);border-color:var(--green);animation:none}
 @keyframes evpulse{50%{box-shadow:0 0 0 4px rgba(255,92,108,.25)}}
+#evpic{text-align:center}#evpic:empty{display:none}#evpic .cat{margin:8px auto 2px;padding:8px 8px 6px;background:#fff7ec;border-radius:14px;max-width:230px;color:#222;box-shadow:0 3px 0 rgba(0,0,0,.35)}#evpic svg{width:100%;height:auto;display:block}#evpic .cap{font:900 15px/1.2 Impact,"Arial Black",system-ui,sans-serif;text-transform:uppercase;margin-top:4px;letter-spacing:.3px}
 #ev .eh{display:flex;gap:10px;align-items:center}
 #ev .ei{font-size:36px}
 #ev .et b{display:block;font-size:18px}#ev .et span{font-size:14px;color:#f2c9ce}
@@ -219,6 +220,7 @@ body.blackout #main{filter:brightness(.55)}
         <div id="fxrow"></div>
         <div id="ev" class="hidden">
           <div class="eh"><div class="ei" id="evi">🚨</div><div class="et"><b id="evt"></b><span id="evx"></span></div></div>
+          <div id="evpic"></div>
           <div id="evbar"><div></div></div>
           <button id="evbtn">TAP</button>
         </div>
@@ -399,6 +401,9 @@ const EVENTS=[
  {id:'fridge',w:2,icon:'🧊',title:'FRIDGE ALARM',text:'The med fridge is beeping. The insulin is warming.',need:4,time:7,btn:'MOVE THE INSULIN',
   ok(){bonus(45,25,'Insulin saved. The fridge is still beeping out of spite.')},
   fail(){S.sh.cash=Math.max(0,S.sh.cash*0.85);err('Insulin spoiled. $$$ gone.')}},
+ {id:'cat',w:3,nice:1,cat:1,icon:'🐱',title:'COWORKER SHARES A CAT PIC',text:'Tap to look at it. Everyone needs this.',need:1,time:10,btn:'AWWWW 😻',
+  ok(){S.sh.sanity=100;gain(0,15,null);log('🐱 Cat picture viewed. Sanity restored to 100. Ten out of ten, would pet.','good')},
+  fail(){log('🐱 You missed the cat picture. Coworker says "no worries, I\'ll show you tomorrow." They will not.','bad')}},
  {id:'donut',w:3,nice:1,icon:'🍩',title:'A DONUT APPEARS',text:'Someone left donuts in the break room. Be quick.',need:1,time:9,btn:'EAT THE DONUT',
   ok(){S.sh.sanity=clamp(S.sh.sanity+25,0,100);gain(0,20,null);log('🍩 Donut consumed. Sanity +25. A rare good thing has happened.','good')},
   fail(){log('🍩 Someone else ate the donut. You will remember this.','bad')}},
@@ -812,12 +817,18 @@ function doCoffee(){
 }
 
 /* ---------------- EVENTS ---------------- */
+const CAT_COLORS=[['#f2a65a','#fff0d9'],['#6b6f7a','#d8dbe3'],['#2b2b33','#7a7a88'],['#f6f1e7','#ffd6dc'],['#c98a4b','#fff0d9']];
+const CAT_CAPS=['i has been on shift for 12 hrs','no thoughts. only snacks','pls verify my treats','per my last meow','this is fine (it is not fine)','STAT: pet me','my sanity is 100. yours?','nurse called. i said no'];
+function catPic(){
+  const [c,b]=pick(CAT_COLORS),eye=c==='#2b2b33'?'#ffe066':'#2b2b33';
+  return '<div class="cat"><svg viewBox="0 0 200 150"><polygon points="45,55 55,12 90,38" fill="'+c+'"/><polygon points="155,55 145,12 110,38" fill="'+c+'"/><polygon points="54,44 58,24 76,38" fill="#ffb3c1"/><polygon points="146,44 142,24 124,38" fill="#ffb3c1"/><ellipse cx="100" cy="85" rx="66" ry="55" fill="'+c+'"/><ellipse cx="100" cy="102" rx="30" ry="22" fill="'+b+'"/><ellipse cx="76" cy="78" rx="10" ry="12" fill="#fff"/><ellipse cx="124" cy="78" rx="10" ry="12" fill="#fff"/><ellipse cx="78" cy="80" rx="6" ry="9" fill="'+eye+'"/><ellipse cx="126" cy="80" rx="6" ry="9" fill="'+eye+'"/><circle cx="80" cy="76" r="2.5" fill="#fff"/><circle cx="128" cy="76" r="2.5" fill="#fff"/><polygon points="94,96 106,96 100,104" fill="#ff8fa3"/><path d="M100 104 Q92 114 84 108 M100 104 Q108 114 116 108" stroke="#444" stroke-width="2.5" fill="none" stroke-linecap="round"/><g stroke="#555" stroke-width="2" stroke-linecap="round"><path d="M70 100 L36 94 M70 106 L38 112 M130 100 L164 94 M130 106 L162 112"/></g></svg><div class="cap">'+pick(CAT_CAPS)+'</div></div>';
+}
 function spawnEvent(){
   const tot=EVENTS.reduce((a,e)=>a+e.w,0);let r=Math.random()*tot,def=EVENTS[0];
   for(const e of EVENTS){r-=e.w;if(r<=0){def=e;break}}
   U.ev={def,taps:0,left:def.time};
   const el=$('ev');el.classList.remove('hidden');el.classList.toggle('nice',!!def.nice);
-  $('evi').textContent=def.icon;$('evt').textContent=def.title;$('evx').textContent=def.text;
+  $('evpic').innerHTML=def.cat?catPic():'';$('evi').textContent=def.icon;$('evt').textContent=def.title;$('evx').textContent=def.text;
   updateEvent();SND.alarm();buzz([60,40,60]);
 }
 function updateEvent(){
@@ -1307,7 +1318,7 @@ function init(){
 }
 /* debug / test hooks */
 window.__game={
-  get S(){return S},U,TUNING,
+  get S(){return S},U,TUNING,spawnEvent,EVENTS,
   step(sec){const n=Math.round(sec/0.1);for(let i=0;i<n&&gameActive();i++)tick(0.1);if(S.sh&&S.phase==='shift'){renderHUD();renderWork();updateShop()}},
   fill:doFill,phone:doPhone,check:doCheck,buy,save,renderAll,setTab,tapEvent,coffee:doCoffee,
   puzzleAnswer(){if(!U.puzzle)return false;answerPuzzle(U.puzzle.choices.indexOf(U.puzzle.real),null);return true},
