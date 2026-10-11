@@ -273,11 +273,11 @@ body.blackout #main{filter:brightness(.55)}
 const TUNING={
   SHIFT_LEN:540,        // real seconds per night shift (7PM -> 7AM)
   AUDIT_AT:[0.27,0.53,0.80], // shift progress for admin audits
-  ORDER_RATE:0.38,      // orders/sec at shift start
-  CALL_RATE:0.2,       // calls/sec at shift start
-  RAMP_ORDERS:1.5,      // extra multiplier gained by 7AM
-  RAMP_CALLS:1.2,
-  SANITY_DECAY:0.42,    // sanity points/sec
+  ORDER_RATE:0.25,      // orders/sec at shift start
+  CALL_RATE:0.1,       // calls/sec at shift start
+  RAMP_ORDERS:2.5,      // extra multiplier gained by 7AM
+  RAMP_CALLS:3,
+  SANITY_DECAY:0.36,    // sanity points/sec
   SANITY_CHECK_GAIN:35,
   ORDER_PAY:8, ORDER_XP:6, CALL_PAY:4, CALL_XP:3, CHECK_PAY:4, CHECK_XP:5,
   SCRIBBLE_PAY:20, SCRIBBLE_XP:18,
@@ -470,7 +470,7 @@ const backTol=()=>10+3*gl('binder');
 const sanMin=()=>35-5*gl('binder');
 function sanDecay(){
   const back=S.sh.orders.length+S.sh.calls.length;
-  return TUNING.SANITY_DECAY*Math.max(0.3,1-0.12*gl('snack'))*Math.max(0.4,1-0.08*pk('fridge'))*(1+0.6*prog())*(1+back/40);
+  return TUNING.SANITY_DECAY*Math.max(0.3,1-0.12*gl('snack'))*Math.max(0.4,1-0.08*pk('fridge'))*(1+1.0*prog())*(1+back/40);
 }
 const coffeeDur=()=>20+6*(gl('coffee')-1)+6*pk('mug');
 const coffeeCd=()=>Math.max(25,50-5*(gl('coffee')-1));
